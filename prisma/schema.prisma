@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Movie {
+  id           String   @id @default(cuid())
+  tmdbId       Int?     @unique
+  title        String
+  description  String
+  releaseDate  String?
+  posterPath   String?
+  backdropPath String?
+  rating       Float    @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  topFourUsers  User[]  @relation("TopFour")
+
+  reviews      Review[]
+  favoritedBy  User[]   @relation("FavoriteMovies")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  content   String
+  rating    Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId   String
+
+  likes     ReviewLike[]
+  comments  Comment[]
+}
+
+model ReviewLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId]) // Enforces 1 like per user per review
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // --- Threading Logic ---
+  parentId  String?
+  parent    Comment?  @relation("ThreadReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("ThreadReplies")
+
+  likes     CommentLike[]
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId]) // Enforces 1 like per user per comment
+}
+
+// ==========================================
+// AUTHENTICATION & USER MODELS
+// ==========================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  topFourMovies Movie[] @relation("TopFour")
+
+  // --- MovieSpace Custom Fields ---
+  bio            String?
+  rank           Int       @default(0) 
+
+  // --- Relations ---
+  accounts       Account[]
+  sessions       Session[]
+  reviews        Review[]
+  favoriteMovies Movie[]   @relation("FavoriteMovies")
+
+  reviewLikes    ReviewLike[]
+  comments       Comment[]
+  commentLikes   CommentLike[]
+
+  // --- NEW: Social Graph Relations ---
+  followers      Follow[]  @relation("Followers")
+  following      Follow[]  @relation("Following")
+}
+
+// --- NEW: Follow System Model ---
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId]) // Prevents following the same person twice
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

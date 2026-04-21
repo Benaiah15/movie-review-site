@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Force Tailwind to listen to our theme toggle button instead of the OS */
+@variant dark (&:is(.dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
