@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import Pagination from "@/components/Pagination";
 import { Star, PlayCircle, Search, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 export const revalidate = 60; // Updates the cache every 60 seconds
@@ -182,33 +183,11 @@ export default async function MoviesPage({ searchParams }: { searchParams: Promi
             </div>
 
             {/* ================= PAGINATION ================= */}
-            {totalPages > 1 && (
-              <div className="mt-20 flex items-center justify-center gap-2">
-                {currentPage > 1 ? (
-                  <Link href={buildPageUrl(currentPage - 1)} className="flex items-center gap-1 px-4 py-3 dark:bg-zinc-900 bg-white border dark:border-zinc-700 border-gray-300 rounded-lg dark:text-white text-zinc-900 font-bold dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
-                    <ChevronLeft size={18} /> Prev
-                  </Link>
-                ) : (
-                  <button disabled className="flex items-center gap-1 px-4 py-3 dark:bg-zinc-900/50 bg-gray-100 border dark:border-zinc-800 border-gray-200 rounded-lg dark:text-zinc-600 text-zinc-400 font-bold cursor-not-allowed">
-                    <ChevronLeft size={18} /> Prev
-                  </button>
-                )}
-
-                <div className="px-6 py-3 dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-zinc-300 text-zinc-700 font-medium">
-                  Page <span className="dark:text-white text-zinc-900 font-bold">{currentPage}</span> of {totalPages}
-                </div>
-
-                {currentPage < totalPages ? (
-                  <Link href={buildPageUrl(currentPage + 1)} className="flex items-center gap-1 px-4 py-3 dark:bg-zinc-900 bg-white border dark:border-zinc-700 border-gray-300 rounded-lg dark:text-white text-zinc-900 font-bold dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
-                    Next <ChevronRight size={18} />
-                  </Link>
-                ) : (
-                  <button disabled className="flex items-center gap-1 px-4 py-3 dark:bg-zinc-900/50 bg-gray-100 border dark:border-zinc-800 border-gray-200 rounded-lg dark:text-zinc-600 text-zinc-400 font-bold cursor-not-allowed">
-                    Next <ChevronRight size={18} />
-                  </button>
-                )}
-              </div>
-            )}
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              buildPageUrl={buildPageUrl} 
+            />
           </>
         )}
       </div>
