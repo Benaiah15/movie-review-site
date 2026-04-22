@@ -29,15 +29,15 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
           <UploadButton
             endpoint="avatarUploader"
             appearance={{
-              // Made button full width on mobile, auto width on desktop
-              button: "bg-red-600 text-white font-bold text-sm px-6 py-2 rounded-lg hover:bg-red-700 transition-colors focus-within:ring-2 focus-within:ring-red-500 w-full sm:w-auto",
+              // CRITICAL FIX: Added text-[11px] for mobile, h-auto, and flex-wrap to stop text from being chopped off
+              button: "bg-red-600 text-white font-bold text-[11px] sm:text-sm px-2 sm:px-6 py-3 rounded-lg hover:bg-red-700 transition-colors focus-within:ring-2 focus-within:ring-red-500 w-full sm:w-auto h-auto flex-wrap leading-tight",
               allowedContent: "dark:text-zinc-500 text-zinc-600 text-xs mt-1 transition-colors truncate w-full block",
             }}
             content={{
-              // Added better loading states for perceived performance
+              // Added better loading states and slightly shortened text for mobile fit
               button({ ready, isUploading }) {
                 if (isUploading) return "Uploading...";
-                if (ready) return "Upload New Image";
+                if (ready) return "Upload Image"; 
                 return "Loading...";
               },
             }}

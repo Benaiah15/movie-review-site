@@ -41,7 +41,7 @@ export default function Navbar() {
                 priority 
               />
             </div>
-            <span className="text-xl font-black dark:text-white text-zinc-900 tracking-tighter transition-colors hidden sm:block">
+            <span className="text-xl font-black dark:text-white text-zinc-900 tracking-tighter transition-colors">
               MOVIE<span className="text-red-600">SPACE</span>
             </span>
           </Link>
