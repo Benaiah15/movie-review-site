@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
-import { LogOut, LayoutDashboard, Home, Film, Users, Menu, X, Sun, Moon } from "lucide-react";
+import { LogOut, LayoutDashboard, Home, Film, Users, Menu, X, Sun, Moon, Newspaper } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -52,6 +52,9 @@ export default function Navbar() {
             </Link>
             <Link href="/movies" className={cn("flex items-center gap-2 transition-colors", pathname === "/movies" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
               <Film size={16} /> Movies
+            </Link>
+            <Link href="/news" className={cn("flex items-center gap-2 transition-colors", pathname === "/news" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
+              <Newspaper size={16} /> News
             </Link>
             {user && (
               <Link href="/feed" className={cn("flex items-center gap-2 transition-colors", pathname === "/feed" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
@@ -123,6 +126,9 @@ export default function Navbar() {
           </Link>
           <Link href="/movies" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Film size={18} /> Movies
+          </Link>
+          <Link href="/news" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+            <Newspaper size={18} /> News
           </Link>
           
           {user ? (
