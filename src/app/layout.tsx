@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
+import { Analytics } from '@vercel/analytics/react';
 import SessionGuardian from "@/components/SessionGuardian"; // <-- IMPORT HERE
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
             </ThemeProvider>
           </SessionGuardian>
         </AuthProvider>
+      <Analytics />
       </body>
     </html>
   );
