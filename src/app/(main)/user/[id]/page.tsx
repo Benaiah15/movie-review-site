@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import FollowButton from "@/components/FollowButton"; // <-- IMPORTED THE REAL COMPONENT
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 export const dynamic = "force-dynamic";
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {

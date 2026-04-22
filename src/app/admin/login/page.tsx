@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 export default function AdminLogin() {
   const router = useRouter();
   const [password, setPassword] = useState("");

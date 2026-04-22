@@ -1,5 +1,6 @@
 import { ChevronRight, Shield } from "lucide-react";
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 export const metadata = {
   title: "Privacy Policy | MovieSpace",
 };

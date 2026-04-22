@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, PlayCircle, Search, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 export const dynamic = "force-dynamic";
 
 // Hardcoded TMDB genre map for fast filtering

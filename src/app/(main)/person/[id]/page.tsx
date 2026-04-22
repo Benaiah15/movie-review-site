@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, PlayCircle, MapPin, Calendar, User, Film } from "lucide-react";
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 export const dynamic = "force-dynamic";
 
 async function getActorDetails(personId: string) {

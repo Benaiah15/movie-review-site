@@ -9,6 +9,7 @@ import TopFourButton from "@/components/TopFourButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
+export const revalidate = 60; // Updates the cache every 60 seconds
 // UPGRADE: Fetching credits, videos, similar movies, and streaming providers in one call
 async function getTMDBDetails(tmdbId: number | null) {
   if (!tmdbId || isNaN(tmdbId)) return null;
@@ -117,7 +118,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
         <div className="flex-1 dark:bg-zinc-950 bg-gray-50 px-4 sm:px-6 pb-20 transition-colors duration-300 w-full">
           <div className="max-w-7xl mx-auto -mt-24 md:-mt-32">
-            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12 w-full">
               
               {/* Left Column: Poster & Quick Info */}
               <div className="w-[200px] md:w-[300px] flex-shrink-0 mx-auto md:mx-0 flex flex-col gap-6">
@@ -126,28 +127,28 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 </div>
 
                 {/* UPGRADE: Where to Watch Section - NOW VISIBLE ON MOBILE */}
-                <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 shadow-sm transition-colors w-full">
+                <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 shadow-sm transition-colors w-full overflow-hidden">
                   <p className="text-xs font-bold dark:text-zinc-400 text-zinc-500 uppercase tracking-wider mb-3 flex items-center justify-center md:justify-start gap-2"><MonitorPlay size={14}/> Available on</p>
                   {streamingProviders.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start w-full">
                       {streamingProviders.map((provider: any) => (
-                        <div key={provider.provider_id} className="w-10 h-10 rounded-lg overflow-hidden border dark:border-zinc-700 border-gray-200" title={provider.provider_name}>
+                        <div key={provider.provider_id} className="w-10 h-10 rounded-lg overflow-hidden border dark:border-zinc-700 border-gray-200 flex-shrink-0" title={provider.provider_name}>
                           <img src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`} alt={provider.provider_name} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs dark:text-zinc-500 text-zinc-400 font-medium text-center md:text-left">Not currently streaming on major US platforms.</p>
+                    <p className="text-xs dark:text-zinc-500 text-zinc-400 font-medium text-center md:text-left truncate w-full">Not currently streaming on major US platforms.</p>
                   )}
                 </div>
               </div>
 
-              {/* Right Column: Main Content. Added min-w-0 to prevent flex blowout! */}
-              <div className="flex-1 flex flex-col pt-2 md:pt-10 min-w-0 w-full text-center md:text-left">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter dark:text-white text-zinc-900 mb-2 drop-shadow-lg transition-colors break-words">{movie.title}</h1>
-                {tmdbData?.tagline && <p className="text-lg md:text-xl dark:text-zinc-400 text-zinc-600 font-medium italic mb-6 transition-colors">"{tmdbData.tagline}"</p>}
+              {/* Right Column: Main Content. Added min-w-0 and w-full to prevent flex blowout! */}
+              <div className="flex-1 flex flex-col pt-2 md:pt-10 min-w-0 w-full text-center md:text-left overflow-hidden">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter dark:text-white text-zinc-900 mb-2 drop-shadow-lg transition-colors break-words w-full">{movie.title}</h1>
+                {tmdbData?.tagline && <p className="text-lg md:text-xl dark:text-zinc-400 text-zinc-600 font-medium italic mb-6 transition-colors break-words w-full">"{tmdbData.tagline}"</p>}
 
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-sm font-semibold mb-8">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-sm font-semibold mb-8 w-full">
                   {movie.releaseDate && (
                     <div className="flex items-center gap-2 dark:bg-zinc-900/80 bg-white/80 backdrop-blur border dark:border-zinc-800 border-gray-200 px-3 py-1.5 rounded-md dark:text-zinc-300 text-zinc-700 shadow-sm transition-colors">
                       <Calendar size={16} className="text-zinc-500" /> {movie.releaseDate.split("-")[0]}
@@ -170,9 +171,9 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 </div>
 
                 {tmdbData?.genres && (
-                  <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
+                  <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8 w-full">
                     {tmdbData.genres.map((genre: any) => (
-                      <span key={genre.id} className="px-3 py-1 text-xs font-bold uppercase tracking-wider dark:text-zinc-300 text-zinc-700 border dark:border-zinc-700 border-gray-300 dark:bg-zinc-800/50 bg-gray-100 rounded-full transition-colors">
+                      <span key={genre.id} className="px-3 py-1 text-xs font-bold uppercase tracking-wider dark:text-zinc-300 text-zinc-700 border dark:border-zinc-700 border-gray-300 dark:bg-zinc-800/50 bg-gray-100 rounded-full transition-colors break-words">
                         {genre.name}
                       </span>
                     ))}
@@ -195,40 +196,43 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 )}
 
                 {/* Expanded Storyline & Crew */}
-                <div className="max-w-3xl mb-12 dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 p-6 rounded-2xl shadow-sm transition-colors text-left mx-auto md:mx-0 w-full">
-                  <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-4 flex items-center gap-2 transition-colors"><Film size={20} className="text-red-500"/> Storyline</h3>
-                  <p className="dark:text-zinc-300 text-zinc-700 text-lg leading-relaxed mb-8 transition-colors">{movie.description || "No overview available."}</p>
+                <div className="max-w-3xl mb-12 dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 p-6 rounded-2xl shadow-sm transition-colors text-left mx-auto md:mx-0 w-full overflow-hidden">
+                  <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-4 flex items-center gap-2 transition-colors"><Film size={20} className="text-red-500 flex-shrink-0"/> Storyline</h3>
+                  {/* CRITICAL FIX: Added break-words whitespace-pre-wrap to description */}
+                  <p className="dark:text-zinc-300 text-zinc-700 text-lg leading-relaxed mb-8 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">
+                    {movie.description || "No overview available."}
+                  </p>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t dark:border-zinc-800/50 border-gray-200 pt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t dark:border-zinc-800/50 border-gray-200 pt-6 w-full">
                     {director && (
-                      <div>
+                      <div className="w-full overflow-hidden">
                         <p className="text-xs font-bold dark:text-zinc-500 text-zinc-500 uppercase tracking-wider mb-1">Director</p>
-                        <p className="dark:text-white text-zinc-900 font-medium transition-colors break-words">{director}</p>
+                        <p className="dark:text-white text-zinc-900 font-medium transition-colors break-words w-full">{director}</p>
                       </div>
                     )}
                     {writers && (
-                      <div>
+                      <div className="w-full overflow-hidden">
                         <p className="text-xs font-bold dark:text-zinc-500 text-zinc-500 uppercase tracking-wider mb-1">Writers</p>
-                        <p className="dark:text-white text-zinc-900 font-medium transition-colors break-words">{writers}</p>
+                        <p className="dark:text-white text-zinc-900 font-medium transition-colors break-words w-full">{writers}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {cast.length > 0 && (
-                  <div className="mb-12 w-full mx-auto md:mx-0 text-left">
-                    <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-6 flex items-center gap-2 transition-colors"><Users size={20} className="text-red-500"/> Top Cast</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="mb-12 w-full mx-auto md:mx-0 text-left overflow-hidden">
+                    <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-6 flex items-center gap-2 transition-colors"><Users size={20} className="text-red-500 flex-shrink-0"/> Top Cast</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
                       {cast.map((person: any) => (
-                        <Link href={`/person/${person.id}`} key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group">
+                        <Link href={`/person/${person.id}`} key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group w-full overflow-hidden">
                           <div className="w-12 h-12 rounded-full overflow-hidden dark:bg-zinc-800 bg-gray-100 flex-shrink-0 border-2 border-transparent group-hover:border-red-500 transition-colors">
                             {person.profile_path ? (
                               <img src={`https://image.tmdb.org/t/p/w200${person.profile_path}`} alt={person.name} className="w-full h-full object-cover" />
                             ) : <UserCircle className="w-full h-full dark:text-zinc-600 text-zinc-400 p-2 transition-colors"/>}
                           </div>
-                          <div className="overflow-hidden min-w-0">
-                            <p className="text-sm font-bold dark:text-white text-zinc-900 truncate dark:group-hover:text-red-400 group-hover:text-red-600 transition-colors">{person.name}</p>
-                            <p className="text-xs dark:text-zinc-500 text-zinc-500 truncate transition-colors">{person.character}</p>
+                          <div className="overflow-hidden min-w-0 w-full">
+                            <p className="text-sm font-bold dark:text-white text-zinc-900 truncate dark:group-hover:text-red-400 group-hover:text-red-600 transition-colors w-full">{person.name}</p>
+                            <p className="text-xs dark:text-zinc-500 text-zinc-500 truncate transition-colors w-full">{person.character}</p>
                           </div>
                         </Link>
                       ))}
@@ -239,15 +243,15 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 {tmdbData && (tmdbData.budget > 0 || tmdbData.revenue > 0) && (
                   <div className="flex flex-col sm:flex-row gap-4 mb-12 w-full mx-auto md:mx-0 text-left">
                     {tmdbData.budget > 0 && (
-                      <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-4 rounded-xl flex-1 shadow-sm transition-colors">
+                      <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-4 rounded-xl flex-1 shadow-sm transition-colors overflow-hidden">
                         <p className="dark:text-zinc-500 text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1 transition-colors">Budget</p>
-                        <p className="dark:text-white text-zinc-900 font-black text-xl transition-colors">{formatMoney(tmdbData.budget)}</p>
+                        <p className="dark:text-white text-zinc-900 font-black text-xl transition-colors truncate">{formatMoney(tmdbData.budget)}</p>
                       </div>
                     )}
                     {tmdbData.revenue > 0 && (
-                      <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-4 rounded-xl flex-1 shadow-sm transition-colors">
+                      <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-4 rounded-xl flex-1 shadow-sm transition-colors overflow-hidden">
                         <p className="dark:text-zinc-500 text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1 transition-colors">Box Office</p>
-                        <p className="dark:text-emerald-400 text-emerald-600 font-black text-xl transition-colors">{formatMoney(tmdbData.revenue)}</p>
+                        <p className="dark:text-emerald-400 text-emerald-600 font-black text-xl transition-colors truncate">{formatMoney(tmdbData.revenue)}</p>
                       </div>
                     )}
                   </div>
@@ -255,8 +259,8 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
                 {/* UPGRADE: Premium Scroll Effect on 'More Like This' */}
                 {similarMovies.length > 0 && (
-                  <div className="mb-12 pt-12 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full text-left">
-                    <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-2 flex items-center gap-2 transition-colors"><Clapperboard size={20} className="text-red-500"/> More Like This</h3>
+                  <div className="mb-12 pt-12 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full text-left overflow-hidden">
+                    <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-2 flex items-center gap-2 transition-colors"><Clapperboard size={20} className="text-red-500 flex-shrink-0"/> More Like This</h3>
                     
                     {/* The scrolling container with hidden scrollbars and padded edges so hover bounds don't clip */}
                     <div className="flex gap-4 overflow-x-auto py-6 px-2 -mx-2 snap-x scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full">
@@ -269,14 +273,15 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                               <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 font-medium text-xs">N/A</div>
                             )}
                           </div>
-                          <h4 className="dark:text-zinc-300 text-zinc-700 font-semibold text-sm truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">{sm.title}</h4>
+                          <h4 className="dark:text-zinc-300 text-zinc-700 font-semibold text-sm truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors w-full">{sm.title}</h4>
                         </Link>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="w-full text-left">
+                {/* CRITICAL FIX: Wrapped the entire Review Component in an overflow-hidden div */}
+                <div className="w-full max-w-full overflow-hidden text-left">
                   <ReviewSection movieId={movie.id} reviews={movie.reviews} />
                 </div>
                 
