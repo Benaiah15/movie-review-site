@@ -1,7 +1,7 @@
 import db from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, PlayCircle, TrendingUp, Flame, Heart, ChevronRight, Ticket, Users, Compass } from "lucide-react";
+import { Star, PlayCircle, TrendingUp, Flame, Heart, ChevronRight, Ticket, Users, Compass, Newspaper, Calendar } from "lucide-react";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -21,6 +21,21 @@ async function getTMDB(endpoint: string) {
   }
 }
 
+// Automated API Fetch for the teaser!
+async function getMovieNewsTeaser() {
+  try {
+    const res = await fetch(
+      `https://gnews.io/api/v4/search?q=movies&lang=en&max=3&apikey=${process.env.GNEWS_API_KEY}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.articles || [];
+  } catch (error) {
+    return [];
+  }
+}
+
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
@@ -37,6 +52,9 @@ export default async function HomePage() {
     orderBy: { reviews: { _count: 'desc' } },
     where: { isPublished: true }
   });
+
+  // Pulling live news from GNews instead of your database
+  const recentNews = await getMovieNewsTeaser();
 
   const trending = trendingData.results?.slice(0, 12) || [];
   const topRated = topRatedData.results?.slice(0, 12) || [];
@@ -165,6 +183,60 @@ export default async function HomePage() {
             </div>
           </div>
         )}
+
+        {/* ================= GNEWS TEASER SECTION ================= */}
+        <div className="pt-16 border-t dark:border-zinc-800/50 border-gray-200 transition-colors w-full">
+          <div className="flex items-center justify-between mb-8 w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-red-600 rounded-sm flex-shrink-0"></div>
+              <h2 className="text-2xl md:text-3xl font-black dark:text-white text-zinc-900 tracking-tight transition-colors truncate">
+                Latest Updates
+              </h2>
+            </div>
+            <Link href="/news" className="text-sm font-semibold text-red-500 hover:text-red-400 transition-colors hidden sm:block flex-shrink-0">
+              View All News &rarr;
+            </Link>
+          </div>
+
+          {recentNews.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed dark:border-zinc-800 border-gray-300 rounded-2xl w-full">
+              <Newspaper size={32} className="dark:text-zinc-700 text-zinc-300 mb-3" />
+              <p className="dark:text-zinc-400 text-zinc-600 font-medium text-sm">News feed temporarily unavailable.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+              {recentNews.map((article: any, index: number) => (
+                <a href={article.url} target="_blank" rel="noopener noreferrer" key={index} className="group flex flex-col dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all w-full">
+                  <div className="relative aspect-video w-full dark:bg-zinc-800 bg-gray-200 overflow-hidden">
+                    {article.image ? (
+                      <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full"><Newspaper className="dark:text-zinc-600 text-zinc-400 opacity-50" size={32} /></div>
+                    )}
+                  </div>
+                  <div className="p-5 flex flex-col flex-1 min-w-0 w-full">
+                    <p className="text-[10px] font-bold text-red-500 uppercase mb-1">{article.source?.name}</p>
+                    <h3 className="text-lg font-bold dark:text-white text-zinc-900 mb-2 group-hover:text-red-500 transition-colors break-words w-full line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="dark:text-zinc-400 text-zinc-600 text-sm mb-4 line-clamp-2 break-words w-full flex-1">
+                      {article.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t dark:border-zinc-800/50 border-gray-100 w-full">
+                      <div className="flex items-center gap-1 text-[10px] dark:text-zinc-500 text-zinc-500">
+                        <Calendar size={10} />
+                        {new Date(article.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+          <Link href="/news" className="mt-6 text-sm font-semibold text-red-500 hover:text-red-400 transition-colors block text-center sm:hidden w-full">
+            View All News &rarr;
+          </Link>
+        </div>
 
       </div>
       

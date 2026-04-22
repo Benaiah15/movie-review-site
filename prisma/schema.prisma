@@ -127,6 +127,7 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   topFourMovies Movie[] @relation("TopFour")
+  newsArticles NewsArticle[]
 
   // --- MovieSpace Custom Fields ---
   bio            String?
@@ -167,4 +168,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model NewsArticle {
+  id        String   @id @default(cuid())
+  title     String
+  excerpt   String   // A short preview of the news
+  content   String   // The full article
+  imageUrl  String?  // Optional header image
+  createdAt DateTime @default(now())
+  
+  // Connects the article to the Admin who wrote it
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
 }
