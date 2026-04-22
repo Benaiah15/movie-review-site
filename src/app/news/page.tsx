@@ -1,11 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Calendar, Newspaper, ExternalLink } from "lucide-react";
 import Pagination from "@/components/Pagination";
-import { Calendar, Newspaper, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const revalidate = 3600; // Caches for 1 hour
 
-// Updated to accept a page number for pagination and return total pages
 async function getMovieNews(page: number) {
   try {
     const res = await fetch(
@@ -15,8 +13,6 @@ async function getMovieNews(page: number) {
     if (!res.ok) return { articles: [], totalPages: 1 };
     const data = await res.json();
     
-    // GNews returns totalArticles. 10 articles per page. 
-    // We cap it at 10 pages total to keep it within the free API tier limits.
     const calculatedPages = Math.ceil((data.totalArticles || 0) / 10);
     const totalPages = Math.min(calculatedPages, 10);
     
@@ -32,18 +28,18 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
   const currentPage = Number(resolvedParams.page) || 1;
   const { articles, totalPages } = await getMovieNews(currentPage);
 
-  // Extract images from the articles to use in the dynamic hero background
   const heroImages = articles.filter((a: any) => a.image).slice(0, 10);
 
   return (
     <div className="min-h-screen dark:bg-zinc-950 bg-gray-50 pb-20 overflow-x-hidden transition-colors duration-300">
       
-      {/* ================= BRIGHTER HERO SECTION (Inspired by MoviesPage) ================= */}
+      {/* ================= BRIGHTER HERO SECTION ================= */}
       <div className="relative w-full h-[50vh] flex items-center justify-center border-b dark:border-zinc-800/50 border-gray-200 mb-12 overflow-hidden dark:bg-zinc-900 bg-gray-200 transition-colors duration-300">
         <div className="absolute inset-0 z-0 flex flex-wrap opacity-40">
           {heroImages.map((article: any, index: number) => (
             <div key={index} className="w-1/5 h-1/2 relative">
-               <Image src={article.image} fill className="object-cover" alt="" />
+               {/* FIXED: Changed Next Image to standard img */}
+               <img src={article.image} className="w-full h-full object-cover" alt="" />
             </div>
           ))}
         </div>
@@ -76,7 +72,8 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
                   
                   <div className="relative aspect-video w-full dark:bg-zinc-800 bg-gray-200 overflow-hidden transition-colors">
                     {article.image ? (
-                      <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {/* FIXED: Changed Next Image to standard img */}
+                      <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="flex items-center justify-center w-full h-full"><Newspaper className="dark:text-zinc-600 text-zinc-400 opacity-50" size={40} /></div>
                     )}
@@ -106,7 +103,6 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
             </div>
 
             {/* ================= PAGINATION UI ================= */}
-           {/* ================= PAGINATION UI ================= */}
             <Pagination 
               currentPage={currentPage} 
               totalPages={totalPages} 
