@@ -11,7 +11,7 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
   const router = useRouter();
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-6 w-full max-w-full overflow-hidden">
       {/* Current Avatar */}
       <div className="w-20 h-20 rounded-full dark:bg-zinc-800 bg-gray-100 border-2 dark:border-zinc-700 border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors">
         {currentImage ? (
@@ -21,36 +21,40 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
         )}
       </div>
 
-      {/* UploadThing Button UI */}
-      <div className="flex-1">
-        <h3 className="dark:text-white text-zinc-900 font-bold text-lg mb-2 transition-colors">Profile Avatar</h3>
-        <UploadButton
-          endpoint="avatarUploader"
-          appearance={{
-            button: "bg-red-600 text-white font-bold text-sm px-6 py-2 rounded-lg hover:bg-red-700 transition-colors focus-within:ring-2 focus-within:ring-red-500",
-            allowedContent: "dark:text-zinc-500 text-zinc-600 text-xs mt-1 transition-colors",
-          }}
-          content={{
-            // Added better loading states for perceived performance
-            button({ ready, isUploading }) {
-              if (isUploading) return "Uploading... please wait";
-              if (ready) return "Upload New Image";
-              return "Loading...";
-            },
-          }}
-          onClientUploadComplete={async (res) => {
-            // Force NextAuth to refresh the session cookie for the Navbar
-            await update();
-            router.refresh();
-            
-            if (typeof window !== "undefined") {
-              window.location.reload();
-            }
-          }}
-          onUploadError={(error: Error) => {
-            alert(`Upload Failed: ${error.message}`);
-          }}
-        />
+      {/* UploadThing Button UI - CRITICAL FIX: Added min-w-0 to prevent flex blowout */}
+      <div className="flex-1 min-w-0 w-full">
+        <h3 className="dark:text-white text-zinc-900 font-bold text-lg mb-2 transition-colors truncate">Profile Avatar</h3>
+        
+        <div className="w-full overflow-hidden flex items-start md:items-center">
+          <UploadButton
+            endpoint="avatarUploader"
+            appearance={{
+              // Made button full width on mobile, auto width on desktop
+              button: "bg-red-600 text-white font-bold text-sm px-6 py-2 rounded-lg hover:bg-red-700 transition-colors focus-within:ring-2 focus-within:ring-red-500 w-full sm:w-auto",
+              allowedContent: "dark:text-zinc-500 text-zinc-600 text-xs mt-1 transition-colors truncate w-full block",
+            }}
+            content={{
+              // Added better loading states for perceived performance
+              button({ ready, isUploading }) {
+                if (isUploading) return "Uploading...";
+                if (ready) return "Upload New Image";
+                return "Loading...";
+              },
+            }}
+            onClientUploadComplete={async (res) => {
+              // Force NextAuth to refresh the session cookie for the Navbar
+              await update();
+              router.refresh();
+              
+              if (typeof window !== "undefined") {
+                window.location.reload();
+              }
+            }}
+            onUploadError={(error: Error) => {
+              alert(`Upload Failed: ${error.message}`);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

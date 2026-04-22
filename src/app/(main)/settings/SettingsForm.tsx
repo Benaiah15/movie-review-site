@@ -30,32 +30,33 @@ export default function SettingsForm({ initialName, initialBio }: { initialName:
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="space-y-2">
+    <form onSubmit={onSubmit} className="space-y-6 w-full max-w-full overflow-hidden">
+      <div className="space-y-2 w-full">
         <label className="text-sm font-bold dark:text-zinc-400 text-zinc-600">Display Name</label>
         <input 
           type="text" 
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 dark:text-white text-zinc-900 px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors" 
+          className="w-full max-w-full dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 dark:text-white text-zinc-900 px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors" 
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         <label className="text-sm font-bold dark:text-zinc-400 text-zinc-600">Bio</label>
         <textarea 
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={4}
-          className="w-full dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 dark:text-white text-zinc-900 px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors resize-none" 
+          className="w-full max-w-full dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 dark:text-white text-zinc-900 px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors resize-none" 
         />
       </div>
 
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex justify-end w-full">
+        {/* CRITICAL FIX: Added w-full sm:w-auto and justify-center for perfect mobile fit */}
         <button 
           type="submit" 
           disabled={isLoading}
-          className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black px-8 py-3 rounded-xl transition-colors flex items-center gap-2 shadow-sm"
+          className="w-full sm:w-auto bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black px-8 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
         >
           <Save size={20} /> {isLoading ? "Saving..." : "Save Changes"}
         </button>
