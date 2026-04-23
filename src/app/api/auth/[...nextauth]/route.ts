@@ -59,15 +59,17 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
        if (account?.provider === "google") {
-          // THE FIX: Using .toLowerCase() to guarantee a match
-          if (user.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
-              const existingAdmin = await db.user.findUnique({ where: { email: user.email }});
+          // THE FIX: Extract email to a guaranteed string variable to satisfy TypeScript
+          const safeEmail = user.email || "";
+          
+          if (safeEmail.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
+              const existingAdmin = await db.user.findUnique({ where: { email: safeEmail }});
               if (!existingAdmin) {
                   setTimeout(async () => {
-                     await db.user.update({ where: { email: user.email! }, data: { name: "Admin", rank: 100, level: 100 }});
+                     await db.user.update({ where: { email: safeEmail }, data: { name: "Admin", rank: 100, level: 100 }});
                   }, 2000);
               } else if (existingAdmin.name !== "Admin" || existingAdmin.level !== 100) {
-                  await db.user.update({ where: { email: user.email }, data: { name: "Admin", level: 100 }});
+                  await db.user.update({ where: { email: safeEmail }, data: { name: "Admin", level: 100 }});
               }
               user.name = "Admin";
           }
@@ -79,7 +81,6 @@ export const authOptions: AuthOptions = {
         token.id = user.id; 
         token.level = (user as any).level || 1;
       }
-      // THE FIX: Also ensuring case-insensitivity on the JWT verification
       if (token.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) { 
         token.name = "Admin"; 
         token.level = 100;
@@ -90,7 +91,6 @@ export const authOptions: AuthOptions = {
       if (session.user) { 
          (session.user as any).id = token.id; 
          (session.user as any).level = token.level;
-         // THE FIX: Final layer of case-insensitivity check
          if (session.user.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
              session.user.name = "Admin";
              (session.user as any).level = 100;
