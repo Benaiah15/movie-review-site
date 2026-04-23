@@ -9,20 +9,23 @@ export default function SessionGuardian({ children }: { children: React.ReactNod
   const pathname = usePathname();
 
   useEffect(() => {
-    // THE FIX: We removed the aggressive "unauthenticated" memory wipe from here.
-    // It was deleting your admin_session flag during the Google redirect!
+    // THE FIX: The OAuth Transit Bridge. 
+    // This catches your Admin flag after Google wiped the sessionStorage!
+    if (typeof window !== "undefined" && localStorage.getItem("oauth_admin_transit") === "true") {
+       sessionStorage.setItem("admin_session", "active");
+       localStorage.removeItem("oauth_admin_transit");
+    }
 
     if (status === "authenticated") {
-      const isAdmin = session?.user?.name === "Admin";
+      // Using the bulletproof backend flag we created
+      const isAdmin = (session?.user as any)?.isAdmin === true || session?.user?.name === "Admin";
       const isStrictAdminRoute = pathname.startsWith("/admin");
 
       if (isAdmin) {
-        // Enforce the strict tab-close rule for Admins
         if (isStrictAdminRoute && !sessionStorage.getItem("admin_session")) {
           signOut({ callbackUrl: "/admin/login" });
         }
       } else {
-        // Regular user logic
         const hasPersistent = localStorage.getItem("user_persistent");
         const hasTemp = sessionStorage.getItem("user_temp");
 

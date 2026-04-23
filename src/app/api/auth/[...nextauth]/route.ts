@@ -11,14 +11,8 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      // THE FIX: This tells NextAuth it is safe to link your Google login
-      // to the account you already created using the Master Passcode.
       allowDangerousEmailAccountLinking: true, 
-      authorization: {
-        params: {
-          prompt: "select_account",
-        },
-      },
+      authorization: { params: { prompt: "select_account" } },
     }),
     CredentialsProvider({
       name: "credentials",
@@ -32,28 +26,22 @@ export const authOptions: AuthOptions = {
           if (credentials.password === process.env.MASTER_ADMIN_PASSWORD) {
             const masterEmail = process.env.MASTER_ADMIN_EMAIL!;
             let adminUser = await db.user.findUnique({ where: { email: masterEmail } });
-            
             if (!adminUser) {
               adminUser = await db.user.create({ data: { email: masterEmail, name: "Admin", rank: 100, level: 100 } });
-            } else if (adminUser.name !== "Admin" || adminUser.level !== 100) {
-              adminUser = await db.user.update({ where: { email: masterEmail }, data: { name: "Admin", level: 100 } });
             }
             return adminUser;
           }
           throw new Error("Invalid Master Passcode");
         }
 
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
-        }
+        if (!credentials?.email || !credentials?.password) throw new Error("Invalid credentials");
+        
         if (credentials.email.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
             throw new Error("Classified Account: Please authenticate via the secure Admin Portal.");
         }
 
         const user = await db.user.findUnique({ where: { email: credentials.email } });
-        if (!user || !user?.hashedPassword) {
-          throw new Error("Account connected via Google. Please Sign in with Google.");
-        }
+        if (!user || !user?.hashedPassword) throw new Error("Account connected via Google. Please Sign in with Google.");
 
         const isCorrectPassword = await bcrypt.compare(credentials.password, user.hashedPassword);
         if (!isCorrectPassword) throw new Error("Invalid credentials");
@@ -65,42 +53,40 @@ export const authOptions: AuthOptions = {
   pages: { signIn: '/login' },
   session: { strategy: "jwt" },
   callbacks: {
-    async signIn({ user, account }) {
-       if (account?.provider === "google") {
-          const safeEmail = user.email || "";
-          
-          if (safeEmail.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
-              const existingAdmin = await db.user.findUnique({ where: { email: safeEmail }});
-              if (!existingAdmin) {
-                  setTimeout(async () => {
-                     await db.user.update({ where: { email: safeEmail }, data: { name: "Admin", rank: 100, level: 100 }});
-                  }, 2000);
-              } else if (existingAdmin.name !== "Admin" || existingAdmin.level !== 100) {
-                  await db.user.update({ where: { email: safeEmail }, data: { name: "Admin", level: 100 }});
-              }
-              user.name = "Admin";
-          }
-       }
-       return true;
-    },
+    // THE FIX: We use NextAuth's native token pipeline to enforce Admin status securely
     async jwt({ token, user }) {
       if (user) { 
         token.id = user.id; 
         token.level = (user as any).level || 1;
       }
-      if (token.email?.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) { 
+      
+      const safeEmail = token.email || "";
+      const isMasterAdmin = safeEmail.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+      
+      if (isMasterAdmin) { 
         token.name = "Admin"; 
         token.level = 100;
+        token.isAdmin = true; // Bulletproof flag
+        
+        // Silently correct the database in the background if Google overwrote the name
+        db.user.updateMany({
+           where: { email: safeEmail },
+           data: { name: "Admin", rank: 100, level: 100 }
+        }).catch(()=>null);
+      } else {
+        token.isAdmin = false;
       }
+      
       return token;
     },
     async session({ session, token }) {
       if (session.user) { 
          (session.user as any).id = token.id; 
          (session.user as any).level = token.level;
-         if (session.user.email?.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
+         (session.user as any).isAdmin = token.isAdmin;
+
+         if (token.isAdmin) {
              session.user.name = "Admin";
-             (session.user as any).level = 100;
          }
       }
       return session;

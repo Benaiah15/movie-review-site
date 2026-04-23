@@ -13,8 +13,9 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Identify if a normal user is intruding
-  const isQuarantining = status === "authenticated" && session?.user?.name !== "Admin";
+  // Using the bulletproof custom flag to prevent accidental quarantines
+  const isAdmin = (session?.user as any)?.isAdmin === true || session?.user?.name === "Admin";
+  const isQuarantining = status === "authenticated" && !isAdmin;
 
   useEffect(() => {
     if (isQuarantining) {
@@ -24,6 +25,8 @@ export default function AdminLogin() {
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
+    // THE FIX: Set the Transit Flag so SessionGuardian knows we are returning from Google
+    localStorage.setItem("oauth_admin_transit", "true");
     sessionStorage.setItem("admin_session", "active");
     signIn("google", { callbackUrl: '/admin' });
   };
@@ -51,7 +54,6 @@ export default function AdminLogin() {
     });
   };
 
-  // Normal loading state (no scary text)
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-[#050505] bg-gray-100">
@@ -60,7 +62,6 @@ export default function AdminLogin() {
     );
   }
 
-  // Aggressive purging state (only shows if a normal user is being kicked out)
   if (isQuarantining) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center dark:bg-[#050505] bg-gray-100">
