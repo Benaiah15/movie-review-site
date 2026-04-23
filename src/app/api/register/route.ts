@@ -1,60 +1,47 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import bcrypt from "bcrypt";
 import db from "@/lib/db";
+import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const body = await request.json();
+    const { name, email, password } = body;
 
-    // Ensure the user is actually logged in
-    if (!session || !session.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!name || !email || !password) {
+      return new NextResponse("Missing information", { status: 400 });
     }
 
-    const userId = (session.user as any).id;
-    const body = await req.json();
-    const { movieId, rating, content } = body;
+    const existingUser = await db.user.findUnique({ where: { email } });
 
-    if (!movieId || !rating || !content) {
-      return new NextResponse("Missing required fields", { status: 400 });
+    if (existingUser) {
+      // If they exist but have no password, they logged in with Google originally
+      if (!existingUser.hashedPassword) {
+        return new NextResponse("Email linked to a Google Account. Please sign in with Google.", { status: 400 });
+      }
+      return new NextResponse("Email already in use", { status: 400 });
     }
 
-    // 1. Save the review to the database
-    const review = await db.review.create({
-      data: {
-        movieId,
-        rating,
-        content,
-        userId,
-      },
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create user with starting XP (Level 1)
+    const user = await db.user.create({
+      data: { name, email, hashedPassword, xp: 50, level: 1 }
     });
 
-    // 2. THE GAMIFICATION ENGINE: Update XP and Level
-    const currentUser = await db.user.findUnique({
-      where: { id: userId },
-      select: { xp: true, level: true }
-    });
-
-    if (currentUser) {
-      const newXp = currentUser.xp + 20; // Award 20 XP per review
-      
-      // Calculate new level (Level 1 = 0-99 XP, Level 2 = 100-199 XP, etc.)
-      const calculatedLevel = Math.floor(newXp / 100) + 1; 
-
-      await db.user.update({
-        where: { id: userId },
-        data: {
-          xp: newXp,
-          // Only update the level if the math shows they actually leveled up
-          level: calculatedLevel > currentUser.level ? calculatedLevel : currentUser.level
-        }
-      });
+    // Auto-Follow the Admin immediately upon registration
+    const adminEmail = process.env.MASTER_ADMIN_EMAIL;
+    if (adminEmail) {
+      const admin = await db.user.findUnique({ where: { email: adminEmail } });
+      if (admin) {
+        await db.follow.create({
+          data: { followerId: user.id, followingId: admin.id }
+        }).catch(() => null); // Fail silently if it somehow glitches
+      }
     }
 
-    return NextResponse.json(review);
-  } catch (error) {
-    console.error("REVIEW_POST_ERROR:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(user);
+  } catch (error: any) {
+    console.error("REGISTER_ERROR:", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }
