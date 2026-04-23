@@ -3,7 +3,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ShieldAlert, Eye, EyeOff, Loader2, AlertTriangle } from "lucide-react";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -13,22 +13,22 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Using the bulletproof custom flag to prevent accidental quarantines
   const isAdmin = (session?.user as any)?.isAdmin === true || session?.user?.name === "Admin";
   const isQuarantining = status === "authenticated" && !isAdmin;
 
+  // Automatically push to the dashboard if they login successfully!
   useEffect(() => {
-    if (isQuarantining) {
-      signOut({ callbackUrl: "/login" });
+    if (status === "authenticated" && isAdmin) {
+      router.push("/admin");
     }
-  }, [isQuarantining]);
+  }, [status, isAdmin, router]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
-    // THE FIX: Set the Transit Flag so SessionGuardian knows we are returning from Google
     localStorage.setItem("oauth_admin_transit", "true");
     sessionStorage.setItem("admin_session", "active");
-    signIn("google", { callbackUrl: '/admin' });
+    // Redirect back to THIS page first to verify they are an admin
+    signIn("google", { callbackUrl: '/admin/login' }); 
   };
 
   const loginAdmin = async (e: React.FormEvent) => {
@@ -62,12 +62,33 @@ export default function AdminLogin() {
     );
   }
 
+  // =========================================================================
+  // THE DIAGNOSTIC SCREEN - THIS WILL REVEAL YOUR ENV VARIABLE MISMATCH
+  // =========================================================================
   if (isQuarantining) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center dark:bg-[#050505] bg-gray-100">
-        <Loader2 size={48} className="animate-spin text-red-600 mb-6" />
-        <h2 className="text-xl font-bold dark:text-white text-zinc-900 tracking-wider uppercase mb-2">Purging Session Data</h2>
-        <p className="text-sm dark:text-zinc-500 text-zinc-600 font-mono text-center max-w-xs">Unauthorized credentials detected. Redirecting to standard login...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center dark:bg-[#050505] bg-gray-100 p-4">
+        <AlertTriangle size={64} className="text-red-600 mb-6" />
+        <h2 className="text-2xl font-black dark:text-white text-zinc-900 tracking-wider uppercase mb-2 text-center">Unrecognized Administrator</h2>
+        
+        <div className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-300 p-6 rounded-xl max-w-md w-full shadow-lg text-center mb-8">
+          <p className="text-sm dark:text-zinc-400 text-zinc-600 mb-4">
+            You authenticated with Google using the following email:
+          </p>
+          <p className="text-lg font-bold text-red-600 bg-red-600/10 py-2 rounded-lg mb-4 truncate px-2 border border-red-600/20">
+            {session?.user?.email}
+          </p>
+          <p className="text-sm dark:text-zinc-500 text-zinc-500 leading-relaxed">
+            This email does not match the <strong className="dark:text-white text-black">MASTER_ADMIN_EMAIL</strong> configured on your server. Please check your Vercel Environment Variables to ensure they perfectly match.
+          </p>
+        </div>
+
+        <button 
+          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-lg transition-colors"
+        >
+          Sign Out & Try Again
+        </button>
       </div>
     );
   }
