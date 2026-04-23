@@ -59,8 +59,8 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
        if (account?.provider === "google") {
-          if (user.email === process.env.MASTER_ADMIN_EMAIL) {
-              // SECURITY FIX: Google inherently verifies the email. If it matches the master email, they are the admin.
+          // THE FIX: Using .toLowerCase() to guarantee a match
+          if (user.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
               const existingAdmin = await db.user.findUnique({ where: { email: user.email }});
               if (!existingAdmin) {
                   setTimeout(async () => {
@@ -79,7 +79,8 @@ export const authOptions: AuthOptions = {
         token.id = user.id; 
         token.level = (user as any).level || 1;
       }
-      if (token.email === process.env.MASTER_ADMIN_EMAIL) { 
+      // THE FIX: Also ensuring case-insensitivity on the JWT verification
+      if (token.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) { 
         token.name = "Admin"; 
         token.level = 100;
       }
@@ -89,7 +90,8 @@ export const authOptions: AuthOptions = {
       if (session.user) { 
          (session.user as any).id = token.id; 
          (session.user as any).level = token.level;
-         if (session.user.email === process.env.MASTER_ADMIN_EMAIL) {
+         // THE FIX: Final layer of case-insensitivity check
+         if (session.user.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
              session.user.name = "Admin";
              (session.user as any).level = 100;
          }
