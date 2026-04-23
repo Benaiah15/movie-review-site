@@ -11,6 +11,13 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // THE FIX: This forces Google to show the account selection screen 
+      // instead of auto-logging you in with your previous session.
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
     CredentialsProvider({
       name: "credentials",
@@ -59,7 +66,6 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
        if (account?.provider === "google") {
-          // THE FIX: Extract email to a guaranteed string variable to satisfy TypeScript
           const safeEmail = user.email || "";
           
           if (safeEmail.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
