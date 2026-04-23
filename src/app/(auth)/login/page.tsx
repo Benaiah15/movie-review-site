@@ -28,7 +28,6 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Allocate memory based on Remember Me checkbox
     if (rememberMe) {
       localStorage.setItem("user_persistent", "active");
     } else {
@@ -77,8 +76,9 @@ export default function LoginPage() {
           <div>
             <label className="block text-sm font-medium dark:text-zinc-300 text-zinc-700 mb-1 transition-colors">Password</label>
             <div className="relative">
+              {/* THE FIX: Dynamic type based on showPassword state */}
               <input 
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={data.password}
                 onChange={(e) => setData({ ...data, password: e.target.value })}

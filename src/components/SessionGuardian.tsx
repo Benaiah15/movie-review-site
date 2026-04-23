@@ -9,6 +9,15 @@ export default function SessionGuardian({ children }: { children: React.ReactNod
   const pathname = usePathname();
 
   useEffect(() => {
+    // THE FIX: If the user logs out, wipe all browser memory!
+    // This stops the "Stay logged in" choice from bleeding into their next login.
+    if (status === "unauthenticated") {
+      localStorage.removeItem("user_persistent");
+      sessionStorage.removeItem("user_temp");
+      sessionStorage.removeItem("admin_session");
+      return;
+    }
+
     if (status === "authenticated") {
       const isAdmin = session?.user?.name === "Admin";
       
@@ -16,12 +25,12 @@ export default function SessionGuardian({ children }: { children: React.ReactNod
       const isStrictAdminRoute = pathname.startsWith("/admin");
 
       if (isAdmin) {
-        // Only enforce the strict tab-close rule if they are actively in the dashboard
+        // Enforce the strict tab-close rule. (sessionStorage auto-deletes when tab closes)
         if (isStrictAdminRoute && !sessionStorage.getItem("admin_session")) {
           signOut({ callbackUrl: "/admin/login" });
         }
       } else {
-        // Regular user logic remains the same
+        // Regular user logic
         const hasPersistent = localStorage.getItem("user_persistent");
         const hasTemp = sessionStorage.getItem("user_temp");
 

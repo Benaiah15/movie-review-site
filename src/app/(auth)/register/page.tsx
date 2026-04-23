@@ -4,10 +4,12 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [data, setData] = useState({ name: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +28,9 @@ export default function RegisterPage() {
       });
 
       if (response.ok) {
-        // Automatically log them in after successful registration
+        // THE FIX: Set persistent login memory so Guardian doesn't kick them out instantly
+        localStorage.setItem("user_persistent", "active");
+
         signIn("credentials", {
           email: data.email,
           password: data.password,
@@ -90,14 +94,23 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="block text-sm font-medium dark:text-zinc-300 text-zinc-700 mb-1 transition-colors">Password</label>
-            <input 
-              type="password" 
-              required
-              value={data.password}
-              onChange={(e) => setData({ ...data, password: e.target.value })}
-              className="w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                required
+                value={data.password}
+                onChange={(e) => setData({ ...data, password: e.target.value })}
+                className="w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 pr-12 transition-colors"
+                placeholder="••••••••"
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-zinc-500 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <button 
             type="submit" 
@@ -114,7 +127,10 @@ export default function RegisterPage() {
         </div>
 
         <button 
-          onClick={() => signIn("google", { callbackUrl: '/' })}
+          onClick={() => {
+            localStorage.setItem("user_persistent", "active");
+            signIn("google", { callbackUrl: '/' });
+          }}
           className="w-full flex items-center justify-center gap-3 py-3 px-4 dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-700 dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

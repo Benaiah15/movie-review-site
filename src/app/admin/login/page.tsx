@@ -3,11 +3,12 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +45,6 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center dark:bg-[#050505] bg-gray-100 p-4 transition-colors duration-300">
       <div className="w-full max-w-md dark:bg-zinc-950 bg-white border dark:border-red-900/50 border-red-200 rounded-2xl p-8 shadow-[0_0_30px_rgba(220,38,38,0.1)] relative overflow-hidden transition-colors duration-300">
         
-        {/* Decorative Top Border */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-900 via-red-500 to-red-900"></div>
 
         <div className="text-center mb-8 flex flex-col items-center">
@@ -80,14 +80,23 @@ export default function AdminLogin() {
         <form onSubmit={loginAdmin} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest dark:text-zinc-500 text-zinc-600 mb-2 transition-colors">Master Passcode</label>
-            <input 
-              type="password" 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 dark:bg-zinc-900 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 font-mono focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-              placeholder="••••••••••••"
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 dark:bg-zinc-900 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 font-mono focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 pr-12 transition-colors"
+                placeholder="••••••••••••"
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-zinc-500 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <button 
             type="submit" 
