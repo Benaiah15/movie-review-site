@@ -13,13 +13,14 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // THE FIX: The Quarantine Zone
-  // If it detects a non-admin, it purges the session and drops them at the Normal User Login.
+  // Identify if a normal user is intruding
+  const isQuarantining = status === "authenticated" && session?.user?.name !== "Admin";
+
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.name !== "Admin") {
+    if (isQuarantining) {
       signOut({ callbackUrl: "/login" });
     }
-  }, [session, status]);
+  }, [isQuarantining]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
@@ -50,7 +51,17 @@ export default function AdminLogin() {
     });
   };
 
-  if (status === "loading" || (status === "authenticated" && session?.user?.name !== "Admin")) {
+  // Normal loading state (no scary text)
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center dark:bg-[#050505] bg-gray-100">
+        <Loader2 size={48} className="animate-spin text-red-600" />
+      </div>
+    );
+  }
+
+  // Aggressive purging state (only shows if a normal user is being kicked out)
+  if (isQuarantining) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center dark:bg-[#050505] bg-gray-100">
         <Loader2 size={48} className="animate-spin text-red-600 mb-6" />

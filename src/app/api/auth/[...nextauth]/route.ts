@@ -11,8 +11,9 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      // THE FIX: This forces Google to show the account selection screen 
-      // instead of auto-logging you in with your previous session.
+      // THE FIX: This tells NextAuth it is safe to link your Google login
+      // to the account you already created using the Master Passcode.
+      allowDangerousEmailAccountLinking: true, 
       authorization: {
         params: {
           prompt: "select_account",
@@ -45,7 +46,7 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Invalid credentials");
         }
-        if (credentials.email.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
+        if (credentials.email.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
             throw new Error("Classified Account: Please authenticate via the secure Admin Portal.");
         }
 
@@ -68,7 +69,7 @@ export const authOptions: AuthOptions = {
        if (account?.provider === "google") {
           const safeEmail = user.email || "";
           
-          if (safeEmail.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
+          if (safeEmail.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
               const existingAdmin = await db.user.findUnique({ where: { email: safeEmail }});
               if (!existingAdmin) {
                   setTimeout(async () => {
@@ -87,7 +88,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id; 
         token.level = (user as any).level || 1;
       }
-      if (token.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) { 
+      if (token.email?.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) { 
         token.name = "Admin"; 
         token.level = 100;
       }
@@ -97,7 +98,7 @@ export const authOptions: AuthOptions = {
       if (session.user) { 
          (session.user as any).id = token.id; 
          (session.user as any).level = token.level;
-         if (session.user.email?.toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.toLowerCase()) {
+         if (session.user.email?.trim().toLowerCase() === process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase()) {
              session.user.name = "Admin";
              (session.user as any).level = 100;
          }
