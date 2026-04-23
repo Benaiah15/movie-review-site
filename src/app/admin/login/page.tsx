@@ -1,20 +1,28 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // THE FIX: Wipe out any existing "Normal User" session so NextAuth 
+  // doesn't accidentally re-use it when you click the Google button!
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.name !== "Admin") {
+      signOut({ redirect: false });
+    }
+  }, [session, status]);
+
   const handleGoogleLogin = () => {
     sessionStorage.setItem("admin_session", "active");
-    document.cookie = "admin_attempt=true; path=/; max-age=60";
     signIn("google", { callbackUrl: '/admin' });
   };
 
