@@ -14,14 +14,10 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   // THE FIX: The Quarantine Zone
-  // This detects if a normal user is trying to view the Admin Login page
-  // and instantly triggers a destructive sign-out to prevent account-linking.
+  // If it detects a non-admin, it purges the session and drops them at the Normal User Login.
   useEffect(() => {
     if (status === "authenticated" && session?.user?.name !== "Admin") {
-      signOut({ redirect: false }).then(() => {
-        // Force a browser reload to completely clear Next.js client-side cache
-        window.location.reload(); 
-      });
+      signOut({ callbackUrl: "/login" });
     }
   }, [session, status]);
 
@@ -54,15 +50,12 @@ export default function AdminLogin() {
     });
   };
 
-  // THE FIX: The Lockdown Screen
-  // If the browser is still processing the sign-out from the old account,
-  // we show a strict loading screen so the Google button cannot be clicked.
   if (status === "loading" || (status === "authenticated" && session?.user?.name !== "Admin")) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center dark:bg-[#050505] bg-gray-100">
         <Loader2 size={48} className="animate-spin text-red-600 mb-6" />
         <h2 className="text-xl font-bold dark:text-white text-zinc-900 tracking-wider uppercase mb-2">Purging Session Data</h2>
-        <p className="text-sm dark:text-zinc-500 text-zinc-600 font-mono text-center max-w-xs">Clearing unauthorized credentials before allowing access to the administration node...</p>
+        <p className="text-sm dark:text-zinc-500 text-zinc-600 font-mono text-center max-w-xs">Unauthorized credentials detected. Redirecting to standard login...</p>
       </div>
     );
   }
