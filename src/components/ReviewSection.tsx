@@ -5,12 +5,13 @@ import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply } from "lucid
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getCinephileBadge } from "@/lib/gamification";
 
 interface Comment {
   id: string;
   content: string;
   createdAt: Date;
-  user: { id: string; name: string | null; image: string | null; };
+  user: { id: string; name: string | null; image: string | null; level: number; };
 }
 
 interface Review {
@@ -18,7 +19,7 @@ interface Review {
   rating: number;
   content: string;
   createdAt: Date;
-  user: { id: string; name: string | null; image: string | null; };
+  user: { id: string; name: string | null; image: string | null; level: number; };
   likes: { userId: string }[]; 
   comments: Comment[]; 
 }
@@ -109,7 +110,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
 
           <div className="mb-6 w-full max-w-full">
             <label className="block text-sm font-semibold dark:text-zinc-400 text-zinc-700 mb-2 transition-colors">Your Thoughts</label>
-            <textarea required rows={4} value={content} onChange={(e) => setContent(e.target.value)} placeholder="What did you think of the movie?" className="w-full max-w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all resize-none"/>
+            <textarea required rows={4} value={content} onChange={(e) => setContent(e.target.value)} placeholder="What did you think of the movie? (You earn +20 XP per review!)" className="w-full max-w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all resize-none"/>
           </div>
 
           <div className="flex justify-end">
@@ -128,23 +129,21 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
             <p className="text-sm dark:text-zinc-600 text-zinc-400 transition-colors">Be the first to share your thoughts!</p>
           </div>
         ) : (
-          reviews.map((review) => (
+          reviews.map((review) => {
+            const badge = getCinephileBadge(review.user.level || 1);
+            return (
             <div key={review.id} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm transition-colors w-full overflow-hidden">
-              
               <div className="flex flex-wrap items-start justify-between mb-4 gap-2">
-                {/* Clickable User Profile Link */}
                 <Link href={`/user/${review.user.id}`} className="flex items-center gap-3 group max-w-[70%]">
                   <div className="w-10 h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent group-hover:border-red-500 transition-colors">
-                    {review.user.image ? (
-                      <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" />
-                    ) : (
-                      <UserCircle size={24} className="dark:text-zinc-500 text-zinc-400" />
-                    )}
+                    {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={24} className="dark:text-zinc-500 text-zinc-400" />}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold dark:text-white text-zinc-900 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate w-full">{review.user.name || "Anonymous"}</p>
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500 transition-colors truncate">
-                      {new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    <p className="font-bold dark:text-white text-zinc-900 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate w-full flex items-center gap-1">
+                      {review.user.name || "Anonymous"} <span className="text-sm ml-1" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate">
+                      Lvl {review.user.level || 1} • {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
                 </Link>
@@ -155,7 +154,6 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                 </div>
               </div>
               
-              {/* CRITICAL FIX: Added break-words, whitespace-pre-wrap, overflow-hidden */}
               <p className="dark:text-zinc-300 text-zinc-700 leading-relaxed whitespace-pre-wrap mb-4 transition-colors break-words overflow-hidden w-full max-w-full">{review.content}</p>
               
               <div className="flex items-center gap-6 pt-4 border-t dark:border-zinc-800/50 border-gray-100 transition-colors w-full">
@@ -165,32 +163,32 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
 
               {review.comments.length > 0 && (
                 <div className="mt-6 pl-4 sm:pl-6 ml-2 sm:ml-4 border-l-2 dark:border-zinc-800 border-gray-200 space-y-4 transition-colors w-full">
-                  {review.comments.map((comment) => (
+                  {review.comments.map((comment) => {
+                    const cBadge = getCinephileBadge(comment.user.level || 1);
+                    return (
                     <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-3 sm:p-4 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
                       <div className="flex items-center gap-2 mb-2 w-full">
                         <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 group min-w-0">
-                          {comment.user.image ? (
-                            <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                          ) : (
-                            <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />
-                          )}
-                          <span className="font-medium text-sm dark:text-zinc-300 text-zinc-700 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate max-w-[120px] sm:max-w-xs">{comment.user.name || "Anonymous"}</span>
+                          {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
+                          <span className="font-bold text-sm dark:text-zinc-300 text-zinc-700 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate flex items-center gap-1">
+                            {comment.user.name || "Anonymous"} <span className="text-xs" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
+                          </span>
                         </Link>
-                        <span className="text-xs dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                        <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                       </div>
-                      {/* CRITICAL FIX: Added break-words for comments */}
                       <p className="text-sm dark:text-zinc-400 text-zinc-600 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">{comment.content}</p>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>
-          ))
-        )}
+          )})}
       </div>
     </div>
   );
 }
+
+// --- SUB-COMPONENTS ---
 
 function LikeButton({ reviewId, initialLikes, currentUserId }: { reviewId: string, initialLikes: {userId: string}[], currentUserId?: string }) {
   const router = useRouter();

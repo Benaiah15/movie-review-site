@@ -9,8 +9,8 @@ import TopFourButton from "@/components/TopFourButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export const revalidate = 60; // Updates the cache every 60 seconds
-// UPGRADE: Fetching credits, videos, similar movies, and streaming providers in one call
+export const revalidate = 60;
+
 async function getTMDBDetails(tmdbId: number | null) {
   if (!tmdbId || isNaN(tmdbId)) return null;
   try {
@@ -30,12 +30,20 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const rawId = resolvedParams.id;
   const isTmdbId = /^\d+$/.test(rawId); 
 
+  // CRITICAL FIX: Added `level` to the user selects below so the ReviewSection can display badges!
   let movie = await db.movie.findFirst({
     where: isTmdbId ? { tmdbId: parseInt(rawId) } : { id: rawId },
     include: {
       favoritedBy: { select: { id: true } }, 
       topFourUsers: { select: { id: true } }, 
-      reviews: { include: { user: true, likes: true, comments: { include: { user: true } } }, orderBy: { createdAt: "desc" } }
+      reviews: { 
+        include: { 
+          user: { select: { id: true, name: true, image: true, level: true } }, 
+          likes: true, 
+          comments: { include: { user: { select: { id: true, name: true, image: true, level: true } } } } 
+        }, 
+        orderBy: { createdAt: "desc" } 
+      }
     }
   });
 
@@ -62,7 +70,17 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
           rating: tmdbData.vote_average || 0,
           isPublished: true
         },
-        include: { favoritedBy: { select: { id: true } }, topFourUsers: { select: { id: true } }, reviews: { include: { user: true, likes: true, comments: { include: { user: true } } } } }
+        include: { 
+          favoritedBy: { select: { id: true } }, 
+          topFourUsers: { select: { id: true } }, 
+          reviews: { 
+            include: { 
+              user: { select: { id: true, name: true, image: true, level: true } }, 
+              likes: true, 
+              comments: { include: { user: { select: { id: true, name: true, image: true, level: true } } } } 
+            } 
+          } 
+        }
       });
     } catch (err) {
       movie = {
@@ -84,18 +102,12 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
   const tmdbData = await getTMDBDetails(movie.tmdbId || parseInt(rawId));
   
-  // NEW DATA EXTRACTIONS
   const director = tmdbData?.credits?.crew?.find((p: any) => p.job === "Director")?.name;
   const writers = tmdbData?.credits?.crew?.filter((p: any) => p.department === "Writing").slice(0, 2).map((w: any) => w.name).join(", ");
   const cast = tmdbData?.credits?.cast?.slice(0, 8) || [];
   
-  // Find the official YouTube trailer
   const trailer = tmdbData?.videos?.results?.find((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser"));
-  
-  // Find US streaming providers (Netflix, Hulu, etc)
   const streamingProviders = tmdbData?.["watch/providers"]?.results?.US?.flatrate?.slice(0, 4) || [];
-  
-  // Get similar movies
   const similarMovies = tmdbData?.similar?.results?.slice(0, 10) || [];
   
   const isSaved = session?.user?.id ? movie.favoritedBy.some((u: any) => u.id === session.user.id) : false;
@@ -120,13 +132,11 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
           <div className="max-w-7xl mx-auto -mt-24 md:-mt-32">
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 w-full">
               
-              {/* Left Column: Poster & Quick Info */}
               <div className="w-[200px] md:w-[300px] flex-shrink-0 mx-auto md:mx-0 flex flex-col gap-6">
                 <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] shadow-xl border dark:border-zinc-800 border-gray-200 dark:bg-zinc-900 bg-white transition-colors duration-300">
                   {movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill priority sizes="300px" className="object-cover" />}
                 </div>
 
-                {/* UPGRADE: Where to Watch Section - NOW VISIBLE ON MOBILE */}
                 <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 shadow-sm transition-colors w-full overflow-hidden">
                   <p className="text-xs font-bold dark:text-zinc-400 text-zinc-500 uppercase tracking-wider mb-3 flex items-center justify-center md:justify-start gap-2"><MonitorPlay size={14}/> Available on</p>
                   {streamingProviders.length > 0 ? (
@@ -143,7 +153,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 </div>
               </div>
 
-              {/* Right Column: Main Content. Added min-w-0 and w-full to prevent flex blowout! */}
               <div className="flex-1 flex flex-col pt-2 md:pt-10 min-w-0 w-full text-center md:text-left overflow-hidden">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter dark:text-white text-zinc-900 mb-2 drop-shadow-lg transition-colors break-words w-full">{movie.title}</h1>
                 {tmdbData?.tagline && <p className="text-lg md:text-xl dark:text-zinc-400 text-zinc-600 font-medium italic mb-6 transition-colors break-words w-full">"{tmdbData.tagline}"</p>}
@@ -180,7 +189,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 )}
 
-                {/* UPGRADE: Video Trailer Section */}
                 {trailer && (
                   <div className="mb-12 w-full max-w-3xl mx-auto md:mx-0">
                     <div className="aspect-video w-full rounded-2xl overflow-hidden border dark:border-zinc-800 border-gray-300 shadow-lg dark:bg-zinc-900 bg-black">
@@ -195,10 +203,8 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 )}
 
-                {/* Expanded Storyline & Crew */}
                 <div className="max-w-3xl mb-12 dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 p-6 rounded-2xl shadow-sm transition-colors text-left mx-auto md:mx-0 w-full overflow-hidden">
                   <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-4 flex items-center gap-2 transition-colors"><Film size={20} className="text-red-500 flex-shrink-0"/> Storyline</h3>
-                  {/* CRITICAL FIX: Added break-words whitespace-pre-wrap to description */}
                   <p className="dark:text-zinc-300 text-zinc-700 text-lg leading-relaxed mb-8 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">
                     {movie.description || "No overview available."}
                   </p>
@@ -257,12 +263,10 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 )}
 
-                {/* UPGRADE: Premium Scroll Effect on 'More Like This' */}
                 {similarMovies.length > 0 && (
                   <div className="mb-12 pt-12 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full text-left overflow-hidden">
                     <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-2 flex items-center gap-2 transition-colors"><Clapperboard size={20} className="text-red-500 flex-shrink-0"/> More Like This</h3>
                     
-                    {/* The scrolling container with hidden scrollbars and padded edges so hover bounds don't clip */}
                     <div className="flex gap-4 overflow-x-auto py-6 px-2 -mx-2 snap-x scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full">
                       {similarMovies.map((sm: any) => (
                         <Link href={`/movie/${sm.id}`} key={sm.id} className="w-[130px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-2">
@@ -280,7 +284,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 )}
 
-                {/* CRITICAL FIX: Wrapped the entire Review Component in an overflow-hidden div */}
                 <div className="w-full max-w-full overflow-hidden text-left">
                   <ReviewSection movieId={movie.id} reviews={movie.reviews} />
                 </div>

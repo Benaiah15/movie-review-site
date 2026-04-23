@@ -18,7 +18,7 @@ model Movie {
   isPublished  Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  topFourUsers  User[]  @relation("TopFour")
+  topFourUsers User[]   @relation("TopFour")
 
   reviews      Review[]
   favoritedBy  User[]   @relation("FavoriteMovies")
@@ -50,7 +50,7 @@ model ReviewLike {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([reviewId, userId]) // Enforces 1 like per user per review
+  @@unique([reviewId, userId])
 }
 
 model Comment {
@@ -65,7 +65,6 @@ model Comment {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // --- Threading Logic ---
   parentId  String?
   parent    Comment?  @relation("ThreadReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("ThreadReplies")
@@ -83,7 +82,7 @@ model CommentLike {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([commentId, userId]) // Enforces 1 like per user per comment
+  @@unique([commentId, userId])
 }
 
 // ==========================================
@@ -126,12 +125,16 @@ model User {
   hashedPassword String?  
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  topFourMovies Movie[] @relation("TopFour")
-  newsArticles NewsArticle[]
+  topFourMovies  Movie[]   @relation("TopFour")
+  newsArticles   NewsArticle[]
 
   // --- MovieSpace Custom Fields ---
   bio            String?
   rank           Int       @default(0) 
+
+  // --- Gamification System ---
+  level          Int       @default(1)
+  xp             Int       @default(0)
 
   // --- Relations ---
   accounts       Account[]
@@ -143,12 +146,12 @@ model User {
   comments       Comment[]
   commentLikes   CommentLike[]
 
-  // --- NEW: Social Graph Relations ---
+  // --- Social Graph Relations ---
   followers      Follow[]  @relation("Followers")
   following      Follow[]  @relation("Following")
 }
 
-// --- NEW: Follow System Model ---
+// --- Follow System Model ---
 model Follow {
   followerId  String
   followingId String
@@ -157,7 +160,7 @@ model Follow {
   follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
   following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@id([followerId, followingId]) // Prevents following the same person twice
+  @@id([followerId, followingId]) 
   @@index([followerId])
   @@index([followingId])
 }
@@ -173,12 +176,11 @@ model VerificationToken {
 model NewsArticle {
   id        String   @id @default(cuid())
   title     String
-  excerpt   String   // A short preview of the news
-  content   String   // The full article
-  imageUrl  String?  // Optional header image
+  excerpt   String   
+  content   String   
+  imageUrl  String?  
   createdAt DateTime @default(now())
   
-  // Connects the article to the Admin who wrote it
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
 }
