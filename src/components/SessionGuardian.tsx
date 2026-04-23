@@ -9,23 +9,15 @@ export default function SessionGuardian({ children }: { children: React.ReactNod
   const pathname = usePathname();
 
   useEffect(() => {
-    // THE FIX: If the user logs out, wipe all browser memory!
-    // This stops the "Stay logged in" choice from bleeding into their next login.
-    if (status === "unauthenticated") {
-      localStorage.removeItem("user_persistent");
-      sessionStorage.removeItem("user_temp");
-      sessionStorage.removeItem("admin_session");
-      return;
-    }
+    // THE FIX: We removed the aggressive "unauthenticated" memory wipe from here.
+    // It was deleting your admin_session flag during the Google redirect!
 
     if (status === "authenticated") {
       const isAdmin = session?.user?.name === "Admin";
-      
-      // Check if the current URL is inside the protected admin area
       const isStrictAdminRoute = pathname.startsWith("/admin");
 
       if (isAdmin) {
-        // Enforce the strict tab-close rule. (sessionStorage auto-deletes when tab closes)
+        // Enforce the strict tab-close rule for Admins
         if (isStrictAdminRoute && !sessionStorage.getItem("admin_session")) {
           signOut({ callbackUrl: "/admin/login" });
         }
