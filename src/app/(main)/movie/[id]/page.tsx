@@ -173,12 +173,18 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <span className="text-amber-600 dark:text-amber-500">{movie.rating.toFixed(1)}</span>
                   </div>
                   
-                  {/* CRITICAL FIX: The Button Grid! Perfect Mobile stacking, Perfect Desktop line */}
-                  <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3 w-full mt-4 md:mt-0">
-                    <div className="col-span-1 w-full"><WatchlistButton movieId={movie.id} initialIsSaved={isSaved} /></div>
-                    <div className="col-span-1 w-full"><CollectionModal movieId={movie.id} /></div>
+                    {/* CRITICAL FIX: Stack buttons natively on mobile, row on desktop */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-3 w-full mt-6 md:mt-0">
+                    <div className="w-full sm:w-auto">
+                      <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
+                    </div>
+                    <div className="w-full sm:w-auto">
+                      <CollectionModal movieId={movie.id} />
+                    </div>
                     {session && (
-                      <div className="col-span-2 w-full sm:w-auto"><TopFourButton movieId={movie.id} initialIsPinned={isPinned} /></div>
+                      <div className="w-full sm:w-auto">
+                        <TopFourButton movieId={movie.id} initialIsPinned={isPinned} />
+                      </div>
                     )}
                   </div>
                 </div>

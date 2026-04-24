@@ -140,10 +140,10 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                     </Link>
                     <div className="min-w-0 flex flex-col">
                       
-                      {/* CRITICAL FIX: Flex items-center prevents the follow button from wrapping. Truncate protects long names. */}
-                      <div className="flex items-center gap-2 pr-2 w-full">
-                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors truncate flex items-center gap-1 min-w-0 max-w-[120px] sm:max-w-[200px]">
-                          <span className="truncate">{review.user.name || "Anonymous"}</span> 
+                      {/* CRITICAL FIX: flex-wrap added, rigid max-w removed. Name displays fully. */}
+                      <div className="flex flex-wrap items-center gap-2 pr-2 w-full">
+                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1 min-w-0">
+                          <span className="truncate max-w-[180px] sm:max-w-[300px]">{review.user.name || "Anonymous"}</span> 
                           <span className="text-sm ml-1 flex-shrink-0" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
                         </Link>
                         <div className="flex-shrink-0">
@@ -176,14 +176,14 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                       const cBadge = getCinephileBadge(comment.user.level || 1);
                       return (
                         <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-3 sm:p-4 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
-                          <div className="flex items-center gap-2 mb-2 w-full pr-2">
+                          <div className="flex flex-wrap items-center gap-2 mb-2 w-full pr-2">
                             <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                               {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
                             </Link>
                             
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <Link href={`/user/${comment.user.id}`} className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1 min-w-0 max-w-[100px] sm:max-w-[150px]">
-                                <span className="truncate">{comment.user.name || "Anonymous"}</span>
+                            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                              <Link href={`/user/${comment.user.id}`} className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1 min-w-0">
+                                <span className="truncate max-w-[140px] sm:max-w-[250px]">{comment.user.name || "Anonymous"}</span>
                                 <span className="text-xs flex-shrink-0" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
                               </Link>
                               <div className="flex-shrink-0">
@@ -191,7 +191,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                               </div>
                             </div>
                             
-                            <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                            <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto mt-1 sm:mt-0 w-full sm:w-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                           </div>
                           <p className="text-sm dark:text-zinc-400 text-zinc-600 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">{comment.content}</p>
                         </div>
