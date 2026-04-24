@@ -69,17 +69,17 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
   }
 
   return (
-    <div className="pt-8 mt-12 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-        <h3 className="text-2xl font-bold dark:text-white text-zinc-900 flex items-center gap-3 transition-colors">
-          <MessageSquare className="text-red-600 flex-shrink-0" />
+    <div className="pt-8 mt-8 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h3 className="text-xl sm:text-2xl font-bold dark:text-white text-zinc-900 flex items-center gap-2 transition-colors">
+          <MessageSquare className="text-red-600 flex-shrink-0" size={20} />
           Community Reviews
         </h3>
         
         {session ? (
           <button 
             onClick={() => setIsFormOpen(!isFormOpen)}
-            className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold tracking-wide rounded-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] w-full sm:w-auto"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold tracking-wide rounded-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] w-full sm:w-auto"
           >
             {isFormOpen ? "Cancel Review" : "+ Write a Review"}
           </button>
@@ -87,16 +87,16 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
       </div>
 
       {!session && (
-        <div className="dark:bg-zinc-900/50 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors w-full">
-          <p className="dark:text-zinc-400 text-zinc-600 transition-colors text-center sm:text-left">Join the community to share your thoughts on this movie.</p>
-          <Link href="/login" className="px-6 py-2 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition whitespace-nowrap w-full sm:w-auto text-center">
-            Sign In to Review
+        <div className="dark:bg-zinc-900/50 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors w-full">
+          <p className="dark:text-zinc-400 text-zinc-600 text-sm transition-colors text-center sm:text-left">Join the community to share your thoughts on this movie.</p>
+          <Link href="/login" className="px-6 py-2 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold text-sm rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition whitespace-nowrap w-full sm:w-auto text-center">
+            Sign In
           </Link>
         </div>
       )}
 
       {isFormOpen && session && (
-        <form onSubmit={handleSubmit} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-6 mb-8 animate-in slide-in-from-top-4 fade-in duration-300 transition-colors shadow-sm w-full">
+        <form onSubmit={handleSubmit} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 mb-8 animate-in slide-in-from-top-4 fade-in duration-300 transition-colors shadow-sm w-full">
           <div className="mb-6 w-full">
             <label className="block text-sm font-semibold dark:text-zinc-400 text-zinc-700 mb-2 transition-colors">Your Rating (1-10)</label>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
@@ -110,11 +110,11 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
 
           <div className="mb-6 w-full max-w-full">
             <label className="block text-sm font-semibold dark:text-zinc-400 text-zinc-700 mb-2 transition-colors">Your Thoughts</label>
-            <textarea required rows={4} value={content} onChange={(e) => setContent(e.target.value)} placeholder="What did you think of the movie? (You earn +20 XP per review!)" className="w-full max-w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all resize-none"/>
+            <textarea required rows={4} value={content} onChange={(e) => setContent(e.target.value)} placeholder="What did you think of the movie?" className="w-full max-w-full px-4 py-3 dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-300 rounded-lg text-sm dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 transition-all resize-none"/>
           </div>
 
           <div className="flex justify-end">
-            <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-8 py-3 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm">
+            <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-6 py-2.5 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold text-sm rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm">
               {isSubmitting && <Loader2 size={16} className="animate-spin" />}
               {isSubmitting ? "Publishing..." : "Publish Review"}
             </button>
@@ -122,78 +122,74 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
         </form>
       )}
 
-      <div className="space-y-6 w-full">
+      <div className="space-y-4 sm:space-y-6 w-full">
         {reviews.length === 0 ? (
-          <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-300 rounded-xl p-12 text-center border-dashed transition-colors w-full">
-            <p className="dark:text-zinc-500 text-zinc-500 mb-2 transition-colors">No reviews yet.</p>
-            <p className="text-sm dark:text-zinc-600 text-zinc-400 transition-colors">Be the first to share your thoughts!</p>
+          <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-300 rounded-xl p-8 text-center border-dashed transition-colors w-full">
+            <p className="text-sm dark:text-zinc-500 text-zinc-500 transition-colors">No reviews yet. Be the first!</p>
           </div>
         ) : (
           reviews.map((review) => {
             const badge = getCinephileBadge(review.user.level || 1);
             return (
-              <div key={review.id} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm transition-colors w-full overflow-hidden">
-                <div className="flex flex-wrap items-start justify-between mb-4 gap-2">
-                  <div className="flex items-center gap-3 max-w-[70%]">
-                    <Link href={`/user/${review.user.id}`} className="w-10 h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent hover:border-red-500 transition-colors">
-                      {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={24} className="dark:text-zinc-500 text-zinc-400" />}
+              <div key={review.id} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm transition-colors w-full overflow-hidden">
+                <div className="flex flex-wrap items-start justify-between mb-3 gap-2 w-full">
+                  
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Link href={`/user/${review.user.id}`} className="w-8 h-8 sm:w-10 sm:h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent hover:border-red-500 transition-colors mt-0.5">
+                      {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={20} className="dark:text-zinc-500 text-zinc-400" />}
                     </Link>
-                    <div className="min-w-0 flex flex-col">
-                      
-                      {/* CRITICAL FIX: flex-wrap added, rigid max-w removed. Name displays fully. */}
-                      <div className="flex flex-wrap items-center gap-2 pr-2 w-full">
-                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1 min-w-0">
-                          <span className="truncate max-w-[180px] sm:max-w-[300px]">{review.user.name || "Anonymous"}</span> 
-                          <span className="text-sm ml-1 flex-shrink-0" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
+                    
+                    <div className="flex flex-col flex-1 min-w-0">
+                      {/* CRITICAL FIX: Flex wrap allows the Follow button to sit next to long names comfortably */}
+                      <div className="flex flex-wrap items-center gap-2 w-full pr-1">
+                        <Link href={`/user/${review.user.id}`} className="font-bold text-sm sm:text-base dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1">
+                          <span className="break-words line-clamp-1">{review.user.name || "Anonymous"}</span> 
+                          <span className="text-[10px] sm:text-xs flex-shrink-0" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
                         </Link>
-                        <div className="flex-shrink-0">
-                          <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
-                        </div>
+                        <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
                       </div>
                       
-                      <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate mt-0.5">
-                        Lvl {review.user.level || 1} • {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <p className="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors mt-0.5">
+                        Lvl {review.user.level || 1} • {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 dark:bg-amber-500/10 bg-amber-50 border dark:border-amber-500/20 border-amber-200 px-2.5 py-1 rounded-md transition-colors flex-shrink-0">
-                    <Star size={14} className="text-amber-500 fill-amber-500" />
-                    <span className="text-amber-600 dark:text-amber-500 font-bold text-sm">{review.rating}</span>
+                  <div className="flex items-center gap-1 dark:bg-amber-500/10 bg-amber-50 border dark:border-amber-500/20 border-amber-200 px-2 py-0.5 sm:py-1 rounded-md transition-colors flex-shrink-0">
+                    <Star size={12} className="text-amber-500 fill-amber-500" />
+                    <span className="text-amber-600 dark:text-amber-500 font-bold text-xs sm:text-sm">{review.rating}</span>
                   </div>
                 </div>
                 
-                <p className="dark:text-zinc-300 text-zinc-700 leading-relaxed whitespace-pre-wrap mb-4 transition-colors break-words overflow-hidden w-full max-w-full">{review.content}</p>
+                <p className="text-xs sm:text-sm dark:text-zinc-300 text-zinc-700 leading-relaxed whitespace-pre-wrap mb-3 transition-colors break-words overflow-hidden w-full max-w-full">{review.content}</p>
                 
-                <div className="flex items-center gap-6 pt-4 border-t dark:border-zinc-800/50 border-gray-100 transition-colors w-full">
+                <div className="flex items-center gap-4 sm:gap-6 pt-3 border-t dark:border-zinc-800/50 border-gray-100 transition-colors w-full">
                   <LikeButton reviewId={review.id} initialLikes={review.likes} currentUserId={currentUserId} />
                   <ReplyInterface reviewId={review.id} currentUserId={currentUserId} commentCount={review.comments.length} />
                 </div>
 
                 {review.comments.length > 0 && (
-                  <div className="mt-6 pl-4 sm:pl-6 ml-2 sm:ml-4 border-l-2 dark:border-zinc-800 border-gray-200 space-y-4 transition-colors w-full">
+                  <div className="mt-4 pl-3 sm:pl-4 ml-1 sm:ml-4 border-l dark:border-zinc-800 border-gray-200 space-y-3 transition-colors w-full">
                     {review.comments.map((comment) => {
                       const cBadge = getCinephileBadge(comment.user.level || 1);
                       return (
-                        <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-3 sm:p-4 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
-                          <div className="flex flex-wrap items-center gap-2 mb-2 w-full pr-2">
-                            <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-2.5 sm:p-3 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
+                          <div className="flex items-start gap-2 mb-1.5 w-full flex-wrap">
+                            <Link href={`/user/${comment.user.id}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity mt-0.5">
                               {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
                             </Link>
                             
-                            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-                              <Link href={`/user/${comment.user.id}`} className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1 min-w-0">
-                                <span className="truncate max-w-[140px] sm:max-w-[250px]">{comment.user.name || "Anonymous"}</span>
-                                <span className="text-xs flex-shrink-0" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
+                            <div className="flex items-center flex-wrap gap-1.5 flex-1 min-w-0">
+                              <Link href={`/user/${comment.user.id}`} className="font-bold text-xs sm:text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1">
+                                <span className="break-words line-clamp-1">{comment.user.name || "Anonymous"}</span>
+                                <span className="text-[10px] flex-shrink-0" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
                               </Link>
-                              <div className="flex-shrink-0">
-                                <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
-                              </div>
+                              <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
                             </div>
                             
-                            <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto mt-1 sm:mt-0 w-full sm:w-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                            <span className="text-[9px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 w-full sm:w-auto mt-1 sm:mt-0 sm:ml-auto">{new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                           </div>
-                          <p className="text-sm dark:text-zinc-400 text-zinc-600 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">{comment.content}</p>
+                          <p className="text-xs sm:text-sm dark:text-zinc-400 text-zinc-600 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">{comment.content}</p>
                         </div>
                       );
                     })}
@@ -258,14 +254,14 @@ function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: strin
     <button 
       onClick={handleQuickFollow} 
       disabled={isLoading}
-      className={`flex items-center justify-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors border flex-shrink-0 ${
+      className={`flex items-center justify-center gap-1 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors border flex-shrink-0 ${
         isFollowing 
           ? "dark:bg-zinc-800 bg-gray-200 dark:text-zinc-400 text-zinc-600 dark:border-zinc-700 border-gray-300" 
           : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20"
       }`}
     >
       {isLoading ? <Loader2 size={10} className="animate-spin" /> : isFollowing ? <UserCheck size={10}/> : <UserPlus size={10}/>}
-      {isFollowing ? "Following" : "Follow"}
+      <span className="hidden sm:inline">{isFollowing ? "Following" : "Follow"}</span>
     </button>
   );
 }
@@ -298,8 +294,8 @@ function LikeButton({ reviewId, initialLikes, currentUserId }: { reviewId: strin
   };
 
   return (
-    <button onClick={handleLike} className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${isLiked ? "text-red-500" : "dark:text-zinc-500 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-      <ThumbsUp size={16} className={isLiked ? "fill-red-500" : ""} />
+    <button onClick={handleLike} className={`flex items-center gap-1 text-xs sm:text-sm font-medium transition-colors ${isLiked ? "text-red-500" : "dark:text-zinc-500 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
+      <ThumbsUp size={14} className={isLiked ? "fill-red-500" : ""} />
       {likeCount} {likeCount === 1 ? 'Upvote' : 'Upvotes'}
     </button>
   );
@@ -337,16 +333,16 @@ function ReplyInterface({ reviewId, currentUserId, commentCount }: { reviewId: s
   };
 
   return (
-    <div className="flex flex-col gap-3 flex-1 min-w-0">
-      <button onClick={() => { if (!currentUserId) return alert("You must be signed in to reply."); setIsReplying(!isReplying); }} className="flex items-center gap-1.5 text-sm font-medium dark:text-zinc-500 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors w-fit">
-        <Reply size={16} />
+    <div className="flex flex-col gap-2 flex-1 min-w-0">
+      <button onClick={() => { if (!currentUserId) return alert("You must be signed in to reply."); setIsReplying(!isReplying); }} className="flex items-center gap-1 text-xs sm:text-sm font-medium dark:text-zinc-500 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors w-fit">
+        <Reply size={14} />
         {commentCount} {commentCount === 1 ? 'Reply' : 'Replies'}
       </button>
 
       {isReplying && (
-        <div className="flex flex-col sm:flex-row gap-2 animate-in fade-in slide-in-from-top-2 w-full">
-          <input type="text" autoFocus value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Write a reply..." className="flex-1 min-w-0 w-full dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-300 rounded-md px-3 py-2 text-sm dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 dark:focus:border-zinc-600 transition-colors"/>
-          <button onClick={handleReplySubmit} disabled={isSubmitting || !replyText.trim()} className="dark:bg-zinc-200 bg-zinc-900 dark:hover:bg-white hover:bg-zinc-800 dark:text-zinc-900 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors disabled:opacity-50 w-full sm:w-auto flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2 animate-in fade-in slide-in-from-top-2 w-full mt-1">
+          <input type="text" autoFocus value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Write a reply..." className="flex-1 min-w-0 w-full dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-300 rounded-md px-3 py-1.5 text-xs sm:text-sm dark:text-white text-zinc-900 focus:outline-none focus:border-red-500 dark:focus:border-zinc-600 transition-colors"/>
+          <button onClick={handleReplySubmit} disabled={isSubmitting || !replyText.trim()} className="dark:bg-zinc-200 bg-zinc-900 dark:hover:bg-white hover:bg-zinc-800 dark:text-zinc-900 text-white px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 w-full sm:w-auto flex-shrink-0">
             {isSubmitting ? "..." : "Post"}
           </button>
         </div>
