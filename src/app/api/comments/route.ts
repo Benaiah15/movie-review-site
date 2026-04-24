@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    // Security check: Must be logged in to reply
     if (!session || !session.user?.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -20,20 +19,37 @@ export async function POST(request: NextRequest) {
       return new NextResponse("Missing data", { status: 400 });
     }
 
-    // THE FIX: Profanity Filter Check
     if (containsProfanity(content)) {
       return new NextResponse("Your reply contains inappropriate language. Please keep the community respectful.", { status: 400 });
     }
 
-    // Save the reply to the database
+    // Fetch the review to get the owner and movieId
+    const review = await db.review.findUnique({
+      where: { id: reviewId },
+      select: { userId: true, movieId: true }
+    });
+
     const comment = await db.comment.create({
       data: {
         content,
         reviewId,
         userId: session.user.id,
-        parentId: parentId || null, // This links it to another comment if it's a deep thread
+        parentId: parentId || null, 
       }
     });
+
+    // THE FIX: Trigger Notification (if they aren't replying to themselves)
+    if (review && review.userId !== session.user.id) {
+      await db.notification.create({
+        data: {
+          userId: review.userId,
+          actorId: session.user.id,
+          type: "COMMENT",
+          message: `replied to your review: "${content.substring(0, 30)}${content.length > 30 ? '...' : ''}"`,
+          link: `/movie/${review.movieId}`
+        }
+      });
+    }
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {

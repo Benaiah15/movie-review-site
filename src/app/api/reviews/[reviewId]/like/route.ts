@@ -15,37 +15,43 @@ export async function POST(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Unwrap the dynamic route parameter
     const resolvedParams = await params;
     const reviewId = resolvedParams.reviewId;
     const userId = session.user.id;
 
-    // Check if the user already liked this specific review
+    // Fetch the review to see who owns it
+    const review = await db.review.findUnique({
+      where: { id: reviewId },
+      select: { userId: true, movieId: true }
+    });
+
+    if (!review) return new NextResponse("Review not found", { status: 404 });
+
     const existingLike = await db.reviewLike.findUnique({
-      where: {
-        reviewId_userId: {
-          reviewId: reviewId,
-          userId: userId,
-        },
-      },
+      where: { reviewId_userId: { reviewId: reviewId, userId: userId } },
     });
 
     if (existingLike) {
-      // If they already liked it, clicking the button again removes the like
-      await db.reviewLike.delete({
-        where: {
-          id: existingLike.id,
-        },
-      });
+      await db.reviewLike.delete({ where: { id: existingLike.id } });
       return NextResponse.json({ liked: false }, { status: 200 });
     } else {
-      // If they haven't liked it, create a new like
       await db.reviewLike.create({
-        data: {
-          reviewId: reviewId,
-          userId: userId,
-        },
+        data: { reviewId: reviewId, userId: userId },
       });
+
+      // THE FIX: Trigger Notification (if they aren't liking their own review!)
+      if (review.userId !== userId) {
+        await db.notification.create({
+          data: {
+            userId: review.userId, 
+            actorId: userId,
+            type: "LIKE",
+            message: "upvoted your movie review.",
+            link: `/movie/${review.movieId}`
+          }
+        });
+      }
+
       return NextResponse.json({ liked: true }, { status: 200 });
     }
   } catch (error) {

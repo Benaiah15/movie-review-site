@@ -27,6 +27,18 @@ export async function POST(req: Request) {
       await db.follow.create({
         data: { followerId: currentUser.id, followingId: targetUserId }
       });
+
+      // THE FIX: Trigger Notification!
+      await db.notification.create({
+        data: {
+          userId: targetUserId,      // The person receiving the follow
+          actorId: currentUser.id,   // The person clicking the button
+          type: "FOLLOW",
+          message: "started following you.",
+          link: `/user/${currentUser.id}` // Clicking the notif takes them to the follower's profile
+        }
+      });
+
       return NextResponse.json({ following: true });
     }
   } catch (error) {
