@@ -38,3 +38,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ========================================= */
+/* UPLOADTHING BUTTON GLOBAL OVERRIDES       */
+/* ========================================= */
+
+.ut-button {
+  background-color: #dc2626 !important; /* MovieSpace Red */
+  color: #ffffff !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1.5rem !important;
+  width: auto !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.ut-button:hover {
+  background-color: #b91c1c !important; /* Darker red on hover */
+}
+
+.ut-allowed-content {
+  display: none !important; /* Completely hides the "Image up to 4MB" text */
+}
