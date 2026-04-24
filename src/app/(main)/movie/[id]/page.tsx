@@ -174,20 +174,22 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <span className="text-amber-600 dark:text-amber-500">{movie.rating.toFixed(1)}</span>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 w-full mt-4 md:mt-0">
-                    <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
-                      <div className="w-full flex">
-                        <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
-                      </div>
-                      <div className="w-full flex">
-                        <CollectionModal movieId={movie.id} />
-                      </div>
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mt-6 md:mt-0">
+                    
+                    <div className="w-[calc(50%-6px)] sm:w-auto flex">
+                      <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
                     </div>
+                    
+                    <div className="w-[calc(50%-6px)] sm:w-auto flex">
+                      <CollectionModal movieId={movie.id} />
+                    </div>
+                    
                     {session && (
-                      <div className="w-full sm:w-auto flex">
+                      <div className="w-full sm:w-auto flex justify-center md:justify-start">
                         <TopFourButton movieId={movie.id} initialIsPinned={isPinned} />
                       </div>
                     )}
+
                   </div>
                 </div>
 
