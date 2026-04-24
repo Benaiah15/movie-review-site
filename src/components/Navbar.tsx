@@ -22,15 +22,27 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+ // Live Notification Polling State
   useEffect(() => {
     setMounted(true);
     if (user) {
-      fetch("/api/notifications")
-        .then(res => res.json())
-        .then(data => {
-          if(Array.isArray(data)) setNotifications(data);
-        })
-        .catch(() => null);
+      const fetchNotifs = () => {
+        fetch("/api/notifications")
+          .then(res => res.json())
+          .then(data => {
+            if(Array.isArray(data)) setNotifications(data);
+          })
+          .catch(() => null);
+      };
+
+      // Fetch immediately on load
+      fetchNotifs(); 
+      
+      // THE FIX: Set up a "heartbeat" to check for new alerts every 15 seconds
+      const interval = setInterval(fetchNotifs, 15000); 
+
+      // Clean up the heartbeat when the user leaves the page
+      return () => clearInterval(interval); 
     }
   }, [user]);
 

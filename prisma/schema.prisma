@@ -19,6 +19,7 @@ model Movie {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   topFourUsers User[]   @relation("TopFour")
+  collections Collection[] @relation("CollectionMovies")
 
   reviews      Review[]
   favoritedBy  User[]   @relation("FavoriteMovies")
@@ -127,6 +128,7 @@ model User {
   updatedAt      DateTime  @updatedAt
   topFourMovies  Movie[]   @relation("TopFour")
   newsArticles   NewsArticle[]
+  collections Collection[] @relation("UserCollections")
 
   // --- MovieSpace Custom Fields ---
   bio            String?
@@ -205,4 +207,18 @@ model NewsArticle {
   
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
+}
+
+// --- Movie Collections (Bookmarks) ---
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation("UserCollections", fields: [userId], references: [id], onDelete: Cascade)
+
+  movies      Movie[]  @relation("CollectionMovies")
 }

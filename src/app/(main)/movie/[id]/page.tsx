@@ -8,6 +8,7 @@ import WatchlistButton from "@/components/WatchlistButton";
 import TopFourButton from "@/components/TopFourButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import CollectionModal from "@/components/CollectionModal";
 
 export const revalidate = 60;
 
@@ -175,6 +176,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   
                   <div className="flex items-center gap-2 w-full md:w-auto justify-center mt-2 md:mt-0">
                     <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
+                    <CollectionModal movieId={movie.id} />
                     {session && <TopFourButton movieId={movie.id} initialIsPinned={isPinned} />}
                   </div>
                 </div>
