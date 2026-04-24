@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { containsProfanity } from "@/lib/profanityFilter";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +18,11 @@ export async function POST(request: NextRequest) {
 
     if (!reviewId || !content) {
       return new NextResponse("Missing data", { status: 400 });
+    }
+
+    // THE FIX: Profanity Filter Check
+    if (containsProfanity(content)) {
+      return new NextResponse("Your reply contains inappropriate language. Please keep the community respectful.", { status: 400 });
     }
 
     // Save the reply to the database
