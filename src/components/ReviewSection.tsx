@@ -139,14 +139,19 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                       {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={24} className="dark:text-zinc-500 text-zinc-400" />}
                     </Link>
                     <div className="min-w-0 flex flex-col">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors truncate flex items-center gap-1">
-                          {review.user.name || "Anonymous"} <span className="text-sm ml-1" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
+                      
+                      {/* CRITICAL FIX: Flex items-center prevents the follow button from wrapping. Truncate protects long names. */}
+                      <div className="flex items-center gap-2 pr-2 w-full">
+                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors truncate flex items-center gap-1 min-w-0 max-w-[120px] sm:max-w-[200px]">
+                          <span className="truncate">{review.user.name || "Anonymous"}</span> 
+                          <span className="text-sm ml-1 flex-shrink-0" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
                         </Link>
-                        {/* QUICK FOLLOW BUTTON */}
-                        <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
+                        <div className="flex-shrink-0">
+                          <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
+                        </div>
                       </div>
-                      <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate">
+                      
+                      <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate mt-0.5">
                         Lvl {review.user.level || 1} • {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                     </div>
@@ -171,16 +176,20 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                       const cBadge = getCinephileBadge(comment.user.level || 1);
                       return (
                         <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-3 sm:p-4 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
-                          <div className="flex items-center gap-2 mb-2 w-full flex-wrap">
+                          <div className="flex items-center gap-2 mb-2 w-full pr-2">
                             <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                               {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
-                              <span className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors truncate flex items-center gap-1">
-                                {comment.user.name || "Anonymous"} <span className="text-xs" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
-                              </span>
                             </Link>
                             
-                            {/* QUICK FOLLOW BUTTON IN COMMENTS */}
-                            <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <Link href={`/user/${comment.user.id}`} className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1 min-w-0 max-w-[100px] sm:max-w-[150px]">
+                                <span className="truncate">{comment.user.name || "Anonymous"}</span>
+                                <span className="text-xs flex-shrink-0" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
+                              </Link>
+                              <div className="flex-shrink-0">
+                                <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
+                              </div>
+                            </div>
                             
                             <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                           </div>
@@ -206,7 +215,6 @@ function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: strin
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // THE FIX: Component checks its own initial state on mount
   useEffect(() => {
     if (!currentUserId || currentUserId === targetUserId) {
       setIsLoading(false);
@@ -250,7 +258,7 @@ function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: strin
     <button 
       onClick={handleQuickFollow} 
       disabled={isLoading}
-      className={`ml-1 flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors border ${
+      className={`flex items-center justify-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors border flex-shrink-0 ${
         isFollowing 
           ? "dark:bg-zinc-800 bg-gray-200 dark:text-zinc-400 text-zinc-600 dark:border-zinc-700 border-gray-300" 
           : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20"

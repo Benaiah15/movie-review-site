@@ -17,12 +17,10 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
-  // Notification State
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
- // Live Notification Polling State
   useEffect(() => {
     setMounted(true);
     if (user) {
@@ -34,19 +32,12 @@ export default function Navbar() {
           })
           .catch(() => null);
       };
-
-      // Fetch immediately on load
       fetchNotifs(); 
-      
-      // THE FIX: Set up a "heartbeat" to check for new alerts every 15 seconds
       const interval = setInterval(fetchNotifs, 15000); 
-
-      // Clean up the heartbeat when the user leaves the page
       return () => clearInterval(interval); 
     }
   }, [user]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -61,7 +52,6 @@ export default function Navbar() {
 
   const handleToggleNotifications = () => {
     setShowNotifications(!showNotifications);
-    // Mark as read when opening
     if (!showNotifications && unreadCount > 0) {
       fetch("/api/notifications", { method: "PATCH" });
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
@@ -78,7 +68,6 @@ export default function Navbar() {
     <nav className="border-b dark:border-zinc-800 border-gray-200 dark:bg-zinc-950/80 bg-white/80 backdrop-blur-md sticky top-0 z-50 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         
-        {/* LOGO & DESKTOP LINKS */}
         <div className="flex items-center gap-10">
           <Link href="/" onClick={closeMenu} className="flex items-center gap-2 sm:gap-3 group">
             <div className="relative w-8 h-8 md:w-9 md:h-9 flex-shrink-0">
@@ -113,10 +102,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ICONS & ACTIONS (Right Side) */}
         <div className="flex items-center gap-2 sm:gap-4">
           
-          {/* THE NOTIFICATION BELL (Visible on both Mobile & Desktop) */}
           {user && (
             <div className="relative" ref={dropdownRef}>
               <button 
@@ -129,9 +116,9 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* NOTIFICATION DROPDOWN */}
+              {/* CRITICAL FIX: Fixed on mobile, Absolute on Desktop! */}
               {showNotifications && (
-                <div className="absolute top-12 -right-4 sm:right-0 w-[calc(100vw-2rem)] max-w-[350px] sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-in slide-in-from-top-2">
+                <div className="fixed top-16 left-4 right-4 sm:absolute sm:top-12 sm:right-0 sm:left-auto sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-in slide-in-from-top-2">
                   <div className="px-4 py-2 border-b dark:border-zinc-800 border-gray-200 flex justify-between items-center sticky top-0 dark:bg-zinc-950 bg-white z-10">
                     <h3 className="font-bold dark:text-white text-zinc-900 text-sm">Notifications</h3>
                     {unreadCount > 0 && <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{unreadCount} New</span>}
@@ -174,7 +161,6 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* THEME TOGGLE */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -185,7 +171,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* DESKTOP PROFILE */}
           <div className="hidden md:flex items-center gap-6">
             {user ? (
               <div className="flex items-center gap-6">
@@ -221,7 +206,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* MOBILE HAMBURGER */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
             className="md:hidden dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 p-1.5 transition-colors"
@@ -231,7 +215,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU PANEL */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full dark:bg-zinc-950 bg-white border-b dark:border-zinc-800 border-gray-200 shadow-2xl px-6 py-4 flex flex-col gap-2 animate-in slide-in-from-top-2 transition-colors">
           <Link href="/" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">

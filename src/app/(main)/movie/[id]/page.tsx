@@ -31,7 +31,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const rawId = resolvedParams.id;
   const isTmdbId = /^\d+$/.test(rawId); 
 
-  // CRITICAL FIX: Added `level` to the user selects below so the ReviewSection can display badges!
   let movie = await db.movie.findFirst({
     where: isTmdbId ? { tmdbId: parseInt(rawId) } : { id: rawId },
     include: {
@@ -174,17 +173,12 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <span className="text-amber-600 dark:text-amber-500">{movie.rating.toFixed(1)}</span>
                   </div>
                   
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 w-full mt-4 md:mt-0">
-                    <div className="flex-1 min-w-[140px] max-w-[200px]">
-                      <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
-                    </div>
-                    <div className="flex-1 min-w-[140px] max-w-[200px]">
-                      <CollectionModal movieId={movie.id} />
-                    </div>
+                  {/* CRITICAL FIX: The Button Grid! Perfect Mobile stacking, Perfect Desktop line */}
+                  <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center justify-start gap-2 sm:gap-3 w-full mt-4 md:mt-0">
+                    <div className="col-span-1 w-full"><WatchlistButton movieId={movie.id} initialIsSaved={isSaved} /></div>
+                    <div className="col-span-1 w-full"><CollectionModal movieId={movie.id} /></div>
                     {session && (
-                      <div className="flex-1 min-w-[140px] max-w-[200px]">
-                        <TopFourButton movieId={movie.id} initialIsPinned={isPinned} />
-                      </div>
+                      <div className="col-span-2 w-full sm:w-auto"><TopFourButton movieId={movie.id} initialIsPinned={isPinned} /></div>
                     )}
                   </div>
                 </div>
