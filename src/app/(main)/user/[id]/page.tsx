@@ -4,7 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, PlayCircle, BarChart3, Pin, X } from "lucide-react"; 
+import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, PlayCircle, BarChart3, Pin, X, Library } from "lucide-react"; 
 import { getCinephileBadge } from "@/lib/gamification";
 import FollowButton from "@/components/FollowButton";
 
@@ -33,6 +33,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
       topFourMovies: true,
       favoriteMovies: { orderBy: { createdAt: "desc" } }, 
       reviews: { include: { movie: true, likes: true }, orderBy: { createdAt: "desc" } },
+      collections: { include: { movies: true }, orderBy: { createdAt: "desc" } }, // ADDED COLLECTIONS QUERY
     },
   });
 
@@ -124,7 +125,6 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                </div>
              </div>
 
-             {/* NEW: Follow Button Integration */}
              <div className="w-full mb-4 px-2">
                <FollowButton targetUserId={user.id} isFollowingInitial={isFollowing} currentUserId={currentUserId} />
              </div>
@@ -146,6 +146,13 @@ export default async function PublicProfilePage({ params, searchParams }: { para
             <Link href="?tab=activity" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "activity" ? "dark:bg-red-600/10 bg-red-50 dark:text-red-500 text-red-600 border dark:border-red-500/20 border-red-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <LayoutDashboard size={18} /> {user.name?.split(" ")[0]}'s Activity
             </Link>
+
+            {/* NEW: COLLECTIONS NAV LINK */}
+            <Link href="?tab=collections" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "collections" ? "dark:bg-purple-500/10 bg-purple-50 dark:text-purple-500 text-purple-600 border dark:border-purple-500/20 border-purple-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+              <Library size={18} /> Custom Lists
+              <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.collections.length}</span>
+            </Link>
+
             <Link href="?tab=watchlist" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "watchlist" ? "dark:bg-amber-500/10 bg-amber-50 dark:text-amber-500 text-amber-600 border dark:border-amber-500/20 border-amber-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <Bookmark size={18} /> Watchlist 
               <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.favoriteMovies.length}</span>
@@ -279,32 +286,77 @@ export default async function PublicProfilePage({ params, searchParams }: { para
               </div>
             </div>
           )}
-          {currentTab === "watchlist" && (<div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 animate-in fade-in duration-500 shadow-sm transition-colors w-full overflow-hidden">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-1.5 h-6 bg-amber-500 rounded-sm flex-shrink-0"></div>
-              <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight transition-colors truncate">{user.name?.split(" ")[0]}'s Watchlist</h2>
-            </div>
-            {user.favoriteMovies.length === 0 ? (
-              <div className="text-center py-20 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
-                <Bookmark size={48} className="mx-auto dark:text-zinc-700 text-zinc-300 mb-4 transition-colors" />
-                <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">They haven't saved any movies yet.</p>
+
+          {/* NEW: COLLECTIONS TAB */}
+          {currentTab === "collections" && (
+            <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 animate-in fade-in duration-500 shadow-sm transition-colors w-full overflow-hidden">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-1.5 h-6 bg-purple-500 rounded-sm flex-shrink-0"></div>
+                <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight transition-colors truncate">{user.name?.split(" ")[0]}'s Collections</h2>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 w-full">
-                {user.favoriteMovies.map((movie) => (
-                  <Link href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-2 w-full overflow-hidden">
-                    <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-lg group-hover:border-amber-500/50 transition-all">
-                      {movie.posterPath ? <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 transition-colors">N/A</div>}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <PlayCircle size={40} className="text-white/90 drop-shadow-lg scale-90 group-hover:scale-100 transition-transform" />
+              
+              {user.collections.length === 0 ? (
+                <div className="text-center py-20 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
+                  <Library size={48} className="mx-auto dark:text-zinc-700 text-zinc-300 mb-4 transition-colors" />
+                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">They haven't created any custom lists yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  {user.collections.map((collection) => (
+                    <div key={collection.id} className="dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-5 shadow-sm transition-colors">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-bold text-lg dark:text-white text-zinc-900 truncate">{collection.name}</h3>
+                          <p className="text-xs font-semibold dark:text-zinc-500 text-zinc-500 uppercase tracking-wider">{collection.movies.length} Movies</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[0, 1, 2, 3].map(i => {
+                          const movie = collection.movies[i];
+                          return movie ? (
+                            <Link href={`/movie/${movie.id}`} key={i} className="aspect-[2/3] relative rounded-md overflow-hidden bg-zinc-800 border dark:border-zinc-800 border-gray-300 hover:border-purple-500 transition-all">
+                              {movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w200${movie.posterPath}`} alt={movie.title} fill className="object-cover" />}
+                            </Link>
+                          ) : (
+                            <div key={i} className="aspect-[2/3] rounded-md dark:bg-zinc-900/50 bg-gray-200 border border-dashed dark:border-zinc-800/50 border-gray-300 transition-colors"></div>
+                          )
+                        })}
                       </div>
                     </div>
-                    <h3 className="dark:text-white text-zinc-900 font-bold text-sm truncate group-hover:text-amber-500 transition-colors w-full">{movie.title}</h3>
-                  </Link>
-                ))}
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentTab === "watchlist" && (
+            <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 animate-in fade-in duration-500 shadow-sm transition-colors w-full overflow-hidden">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-1.5 h-6 bg-amber-500 rounded-sm flex-shrink-0"></div>
+                <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight transition-colors truncate">{user.name?.split(" ")[0]}'s Watchlist</h2>
               </div>
-            )}
+              {user.favoriteMovies.length === 0 ? (
+                <div className="text-center py-20 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
+                  <Bookmark size={48} className="mx-auto dark:text-zinc-700 text-zinc-300 mb-4 transition-colors" />
+                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">They haven't saved any movies yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 w-full">
+                  {user.favoriteMovies.map((movie) => (
+                    <Link href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-2 w-full overflow-hidden">
+                      <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-lg group-hover:border-amber-500/50 transition-all">
+                        {movie.posterPath ? <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 transition-colors">N/A</div>}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <PlayCircle size={40} className="text-white/90 drop-shadow-lg scale-90 group-hover:scale-100 transition-transform" />
+                        </div>
+                      </div>
+                      <h3 className="dark:text-white text-zinc-900 font-bold text-sm truncate group-hover:text-amber-500 transition-colors w-full">{movie.title}</h3>
+                    </Link>
+                  ))}
+                </div>
+              )}
           </div>)}
+
         </main>
       </div>
     </div>
