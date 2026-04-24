@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply } from "lucide-react";
+import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply, UserPlus, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -134,19 +134,23 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
             return (
               <div key={review.id} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm transition-colors w-full overflow-hidden">
                 <div className="flex flex-wrap items-start justify-between mb-4 gap-2">
-                  <Link href={`/user/${review.user.id}`} className="flex items-center gap-3 group max-w-[70%]">
-                    <div className="w-10 h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent group-hover:border-red-500 transition-colors">
+                  <div className="flex items-center gap-3 max-w-[70%]">
+                    <Link href={`/user/${review.user.id}`} className="w-10 h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent hover:border-red-500 transition-colors">
                       {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={24} className="dark:text-zinc-500 text-zinc-400" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold dark:text-white text-zinc-900 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate w-full flex items-center gap-1">
-                        {review.user.name || "Anonymous"} <span className="text-sm ml-1" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
-                      </p>
+                    </Link>
+                    <div className="min-w-0 flex flex-col">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors truncate flex items-center gap-1">
+                          {review.user.name || "Anonymous"} <span className="text-sm ml-1" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
+                        </Link>
+                        {/* QUICK FOLLOW BUTTON INJECTED HERE */}
+                        <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
+                      </div>
                       <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate">
                         Lvl {review.user.level || 1} • {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                     </div>
-                  </Link>
+                  </div>
 
                   <div className="flex items-center gap-1 dark:bg-amber-500/10 bg-amber-50 border dark:border-amber-500/20 border-amber-200 px-2.5 py-1 rounded-md transition-colors flex-shrink-0">
                     <Star size={14} className="text-amber-500 fill-amber-500" />
@@ -167,14 +171,18 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                       const cBadge = getCinephileBadge(comment.user.level || 1);
                       return (
                         <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-3 sm:p-4 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
-                          <div className="flex items-center gap-2 mb-2 w-full">
-                            <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 group min-w-0">
+                          <div className="flex items-center gap-2 mb-2 w-full flex-wrap">
+                            <Link href={`/user/${comment.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                               {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
-                              <span className="font-bold text-sm dark:text-zinc-300 text-zinc-700 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors truncate flex items-center gap-1">
+                              <span className="font-bold text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors truncate flex items-center gap-1">
                                 {comment.user.name || "Anonymous"} <span className="text-xs" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
                               </span>
                             </Link>
-                            <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                            
+                            {/* QUICK FOLLOW BUTTON INJECTED IN COMMENTS TOO */}
+                            <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
+                            
+                            <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                           </div>
                           <p className="text-sm dark:text-zinc-400 text-zinc-600 transition-colors break-words whitespace-pre-wrap overflow-hidden w-full max-w-full">{comment.content}</p>
                         </div>
@@ -192,6 +200,53 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
 }
 
 // --- SUB-COMPONENTS ---
+
+function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: string, currentUserId?: string }) {
+  const router = useRouter();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Hide button if it's the current user's own post or they aren't logged in
+  if (!currentUserId || currentUserId === targetUserId) return null;
+
+  const handleQuickFollow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.following);
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleQuickFollow} 
+      disabled={isLoading}
+      className={`ml-1 flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors border ${
+        isFollowing 
+          ? "dark:bg-zinc-800 bg-gray-200 dark:text-zinc-400 text-zinc-600 dark:border-zinc-700 border-gray-300" 
+          : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20"
+      }`}
+    >
+      {isLoading ? <Loader2 size={10} className="animate-spin" /> : isFollowing ? <UserCheck size={10}/> : <UserPlus size={10}/>}
+      {isFollowing ? "Following" : "Follow"}
+    </button>
+  );
+}
 
 function LikeButton({ reviewId, initialLikes, currentUserId }: { reviewId: string, initialLikes: {userId: string}[], currentUserId?: string }) {
   const router = useRouter();
