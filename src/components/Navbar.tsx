@@ -131,7 +131,7 @@ export default function Navbar() {
 
               {/* NOTIFICATION DROPDOWN */}
               {showNotifications && (
-                <div className="absolute top-12 right-0 w-[300px] sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-in slide-in-from-top-2">
+                <div className="absolute top-12 -right-4 sm:right-0 w-[calc(100vw-2rem)] max-w-[350px] sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-in slide-in-from-top-2">
                   <div className="px-4 py-2 border-b dark:border-zinc-800 border-gray-200 flex justify-between items-center sticky top-0 dark:bg-zinc-950 bg-white z-10">
                     <h3 className="font-bold dark:text-white text-zinc-900 text-sm">Notifications</h3>
                     {unreadCount > 0 && <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{unreadCount} New</span>}

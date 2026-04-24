@@ -11,7 +11,7 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
   const router = useRouter();
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center gap-6 w-full max-w-full overflow-hidden">
+    <div className="flex flex-row flex-wrap items-center gap-4 w-full max-w-full overflow-hidden">
       {/* Current Avatar */}
       <div className="w-20 h-20 rounded-full dark:bg-zinc-800 bg-gray-100 border-2 dark:border-zinc-700 border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors">
         {currentImage ? (

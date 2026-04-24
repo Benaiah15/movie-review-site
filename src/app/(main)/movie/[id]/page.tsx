@@ -133,7 +133,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
           <div className="max-w-7xl mx-auto -mt-24 md:-mt-32">
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 w-full">
               
-              <div className="w-[200px] md:w-[300px] flex-shrink-0 mx-auto md:mx-0 flex flex-col gap-6">
+              <div className="w-full max-w-[280px] md:max-w-none md:w-[300px] flex-shrink-0 mx-auto md:mx-0 flex flex-col gap-6">
                 <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] shadow-xl border dark:border-zinc-800 border-gray-200 dark:bg-zinc-900 bg-white transition-colors duration-300">
                   {movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill priority sizes="300px" className="object-cover" />}
                 </div>
@@ -174,22 +174,18 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <span className="text-amber-600 dark:text-amber-500">{movie.rating.toFixed(1)}</span>
                   </div>
                   
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full mt-6 md:mt-0">
-                    
-                    <div className="w-[calc(50%-6px)] sm:w-auto flex">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 w-full mt-4 md:mt-0">
+                    <div className="flex-1 min-w-[140px] max-w-[200px]">
                       <WatchlistButton movieId={movie.id} initialIsSaved={isSaved} />
                     </div>
-                    
-                    <div className="w-[calc(50%-6px)] sm:w-auto flex">
+                    <div className="flex-1 min-w-[140px] max-w-[200px]">
                       <CollectionModal movieId={movie.id} />
                     </div>
-                    
                     {session && (
-                      <div className="w-full sm:w-auto flex justify-center md:justify-start">
+                      <div className="flex-1 min-w-[140px] max-w-[200px]">
                         <TopFourButton movieId={movie.id} initialIsPinned={isPinned} />
                       </div>
                     )}
-
                   </div>
                 </div>
 

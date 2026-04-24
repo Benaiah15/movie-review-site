@@ -115,19 +115,19 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                </div>
              </div>
 
-             <h2 className="mt-5 text-xl font-black dark:text-white text-zinc-900 tracking-tight transition-colors break-words max-w-full">
-               {user.name}
-             </h2>
-             <div className="flex flex-col items-center gap-1 mb-4 mt-1">
-               <p className={`text-sm font-bold ${badge.color} transition-colors`}>{badge.title}</p>
-               <div className="flex items-center gap-2">
-                 <span className="text-xs dark:text-zinc-500 text-zinc-500 font-medium">Level {user.level}</span>
-               </div>
-             </div>
+              <div className="mt-5 flex items-center justify-center gap-3 flex-wrap px-2">
+                <h2 className="text-xl font-black dark:text-white text-zinc-900 tracking-tight transition-colors break-words">
+                  {user.name}
+                </h2>
+                <FollowButton targetUserId={user.id} isFollowingInitial={isFollowing} currentUserId={currentUserId} />
+              </div>
 
-             <div className="w-full mb-4 px-2">
-               <FollowButton targetUserId={user.id} isFollowingInitial={isFollowing} currentUserId={currentUserId} />
-             </div>
+              <div className="flex flex-col items-center gap-1 mb-4 mt-2">
+                <p className={`text-sm font-bold ${badge.color} transition-colors`}>{badge.title}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs dark:text-zinc-500 text-zinc-500 font-medium">Level {user.level}</span>
+                </div>
+              </div>
 
              <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
                <Link href="?modal=followers" scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
