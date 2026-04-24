@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply, UserPlus, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -143,7 +143,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                         <Link href={`/user/${review.user.id}`} className="font-bold dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors truncate flex items-center gap-1">
                           {review.user.name || "Anonymous"} <span className="text-sm ml-1" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
                         </Link>
-                        {/* QUICK FOLLOW BUTTON INJECTED HERE */}
+                        {/* QUICK FOLLOW BUTTON */}
                         <MiniFollowButton targetUserId={review.user.id} currentUserId={currentUserId} />
                       </div>
                       <p className="text-[10px] uppercase tracking-wider font-semibold dark:text-zinc-500 text-zinc-500 transition-colors truncate">
@@ -179,7 +179,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                               </span>
                             </Link>
                             
-                            {/* QUICK FOLLOW BUTTON INJECTED IN COMMENTS TOO */}
+                            {/* QUICK FOLLOW BUTTON IN COMMENTS */}
                             <MiniFollowButton targetUserId={comment.user.id} currentUserId={currentUserId} />
                             
                             <span className="text-[10px] uppercase font-bold dark:text-zinc-600 text-zinc-500 transition-colors flex-shrink-0 ml-auto">• {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
@@ -204,9 +204,23 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
 function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: string, currentUserId?: string }) {
   const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Hide button if it's the current user's own post or they aren't logged in
+  // THE FIX: Component checks its own initial state on mount
+  useEffect(() => {
+    if (!currentUserId || currentUserId === targetUserId) {
+      setIsLoading(false);
+      return;
+    }
+    fetch(`/api/follow/check?targetId=${targetUserId}`)
+      .then(res => res.json())
+      .then(data => {
+        setIsFollowing(data.isFollowing);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, [targetUserId, currentUserId]);
+
   if (!currentUserId || currentUserId === targetUserId) return null;
 
   const handleQuickFollow = async (e: React.MouseEvent) => {
