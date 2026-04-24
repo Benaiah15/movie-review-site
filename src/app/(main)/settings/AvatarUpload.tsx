@@ -12,6 +12,7 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
   return (
     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 w-full max-w-full overflow-hidden">
       
+      {/* Avatar Preview */}
       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full dark:bg-zinc-800 bg-gray-100 border-2 dark:border-zinc-700 border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors shadow-sm">
         {currentImage ? (
           <img src={currentImage} alt="Avatar" className="w-full h-full object-cover" />
@@ -20,17 +21,13 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
         )}
       </div>
 
+      {/* Upload Component */}
       <div className="flex flex-col items-center sm:items-start w-full min-w-0">
         <h3 className="dark:text-white text-zinc-900 font-bold text-base sm:text-lg mb-3 sm:mb-2 transition-colors text-center sm:text-left">Profile Avatar</h3>
         
-        <div className="w-full overflow-hidden flex justify-center sm:justify-start relative">
+        <div className="w-full overflow-hidden flex justify-center sm:justify-start">
           <UploadButton
             endpoint="avatarUploader"
-            appearance={{
-              container: "flex flex-col items-center sm:items-start w-fit",
-              button: "bg-red-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors w-auto outline-none",
-              allowedContent: "text-[10px] text-zinc-500 mt-1"
-            }}
             content={{
               button({ ready, isUploading }) {
                 if (isUploading) return "Uploading...";
