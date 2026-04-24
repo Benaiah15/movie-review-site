@@ -11,7 +11,7 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
   const router = useRouter();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full max-w-full overflow-hidden">
+    <div className="flex flex-col md:flex-row items-center md:items-center gap-6 w-full max-w-full overflow-hidden">
       
       {/* Avatar Preview */}
       <div className="w-24 h-24 rounded-full dark:bg-zinc-800 bg-gray-100 border-2 dark:border-zinc-700 border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm">
@@ -23,15 +23,16 @@ export default function AvatarUpload({ currentImage }: { currentImage: string | 
       </div>
 
       {/* Text & Button Container */}
-      <div className="flex flex-col items-center sm:items-start w-full min-w-0">
-        <h3 className="dark:text-white text-zinc-900 font-bold text-lg mb-2 text-center sm:text-left">Profile Avatar</h3>
+      <div className="flex flex-col items-center md:items-start w-full min-w-0">
+        <h3 className="dark:text-white text-zinc-900 font-bold text-lg mb-3 text-center md:text-left">Profile Avatar</h3>
         
-        <div className="w-full flex justify-center sm:justify-start">
+        <div className="w-full flex justify-center md:justify-start">
           <UploadButton
             endpoint="avatarUploader"
             appearance={{
-              container: "w-max flex-col items-center sm:items-start m-0 p-0",
-              button: "bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-6 py-2 rounded-lg w-auto border-none outline-none transition-colors",
+              container: "w-max flex-col items-center md:items-start m-0 p-0",
+              // The ! forces it to be red instead of the default blue
+              button: "!bg-red-600 hover:!bg-red-700 text-white font-bold text-sm px-6 py-2 rounded-lg w-auto border-none outline-none transition-colors",
               allowedContent: "hidden" // Hides the "Image 4MB" text
             }}
             content={{
