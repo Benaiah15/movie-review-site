@@ -3,6 +3,17 @@
 /* Force Tailwind to listen to our theme toggle button instead of the OS */
 @variant dark (&:is(.dark *));
 
+/* THE MAGIC TRICK: Global Mobile Shrink */
+html {
+  font-size: 14px; /* Mobile first: Shrinks all rem-based sizes by 12.5% */
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16px; /* Desktop/Tablet: Returns to standard 100% size */
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
