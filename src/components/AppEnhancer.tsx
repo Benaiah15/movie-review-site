@@ -9,34 +9,27 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(true); // Default to true to prevent flash
+  const [isStandalone, setIsStandalone] = useState(true);
 
-  // 1. PWA & Device Detection Logic
   useEffect(() => {
-    // Check if the user is already using the installed PWA
     const checkStandalone = window.matchMedia('(display-mode: standalone)').matches 
                          || (window.navigator as any).standalone;
     setIsStandalone(!!checkStandalone);
 
-    // If they already installed it, do nothing!
     if (checkStandalone) return;
 
-    // Detect iOS devices (iPhones/iPads)
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isIosDevice);
 
-    // Capture the Android/Chrome native install prompt
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Wait 3 seconds after they arrive to smoothly slide in the banner
       setTimeout(() => setShowInstallBanner(true), 3000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // iOS doesn't fire 'beforeinstallprompt', so we just show our banner manually
     if (isIosDevice) {
       setTimeout(() => setShowInstallBanner(true), 3500);
     }
@@ -56,18 +49,18 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
 
   return (
     <>
-      {/* 2. THE GLOBAL PAGE ANIMATION */}
-      {/* Every time the 'pathname' changes, this div completely re-renders and triggers the slide-in fade animation */}
+      {/* 1. THE PAGE ANIMATION */}
+      {/* We replaced the broken Tailwind classes with our native 'animate-page-enter' class */}
       <div 
         key={pathname} 
-        className="animate-in fade-in slide-in-from-bottom-4 duration-[400ms] ease-out flex-1 flex flex-col w-full min-h-screen"
+        className="animate-page-enter flex-1 flex flex-col w-full min-h-screen"
       >
         {children}
       </div>
 
-      {/* 3. THE iOS-STYLE PWA INSTALL BANNER */}
+      {/* 2. THE INSTALL BANNER ANIMATION */}
       {showInstallBanner && !isStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] animate-in slide-in-from-bottom-12 fade-in duration-500 ease-out flex items-center gap-4">
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] animate-banner-enter flex items-center gap-4">
           
           <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border border-red-500/50">
             <Download className="text-white" size={24} />

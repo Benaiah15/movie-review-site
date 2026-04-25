@@ -62,3 +62,38 @@ body {
 .ut-allowed-content {
   display: none !important; /* Completely hides the "Image up to 4MB" text */
 }
+
+/* ========================================= */
+/* GLOBAL PAGE & BANNER ANIMATIONS           */
+/* ========================================= */
+
+@keyframes pageSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  /* Using a cubic-bezier curve to mimic that snappy but smooth iOS feel */
+  animation: pageSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bannerSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-banner-enter {
+  animation: bannerSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
