@@ -6,16 +6,30 @@ import { Download, X, Share } from "lucide-react";
 
 export default function AppEnhancer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(true);
 
+  // 1. Animation State (Controls the page glide)
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  // 2. PWA State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showBanner, setShowBanner] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(true); // Default to true to prevent flashes
+
+  // Trigger Page Animation perfectly on EVERY route change
+  useEffect(() => {
+    setIsPageLoaded(false); // Instantly drop opacity to 0
+    const timer = setTimeout(() => setIsPageLoaded(true), 50); // Glide it up smoothly
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  // PWA Detection Logic
   useEffect(() => {
     const checkStandalone = window.matchMedia('(display-mode: standalone)').matches 
                          || (window.navigator as any).standalone;
     setIsStandalone(!!checkStandalone);
 
+    // If already installed, don't trigger anything
     if (checkStandalone) return;
 
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -25,13 +39,14 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setTimeout(() => setShowInstallBanner(true), 3000);
+      // Wait 3 seconds, then slide up the install banner
+      setTimeout(() => setShowBanner(true), 3000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     if (isIosDevice) {
-      setTimeout(() => setShowInstallBanner(true), 3500);
+      setTimeout(() => setShowBanner(true), 3500);
     }
 
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -41,27 +56,32 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setShowInstallBanner(false);
-    }
+    if (outcome === 'accepted') setShowBanner(false);
     setDeferredPrompt(null);
   };
 
   return (
     <>
-      {/* 1. THE PAGE ANIMATION */}
-      {/* We replaced the broken Tailwind classes with our native 'animate-page-enter' class */}
-      <div 
-        key={pathname} 
-        className="animate-page-enter flex-1 flex flex-col w-full min-h-screen"
+      {/* ========================================= */}
+      {/* THE PAGE ANIMATION (Native Tailwind)        */}
+      {/* ========================================= */}
+      <div
+        className={`flex-1 flex flex-col w-full min-h-screen transform transition-all duration-[500ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        }`}
       >
         {children}
       </div>
 
-      {/* 2. THE INSTALL BANNER ANIMATION */}
-      {showInstallBanner && !isStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] animate-banner-enter flex items-center gap-4">
-          
+      {/* ========================================= */}
+      {/* THE INSTALL BANNER ANIMATION                */}
+      {/* ========================================= */}
+      {!isStandalone && (
+        <div
+          className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-2xl transform transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center gap-4 ${
+            showBanner ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-16 scale-95 pointer-events-none"
+          }`}
+        >
           <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border border-red-500/50">
             <Download className="text-white" size={24} />
           </div>
@@ -89,7 +109,7 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
           )}
 
           <button 
-            onClick={() => setShowInstallBanner(false)} 
+            onClick={() => setShowBanner(false)} 
             className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors p-1"
           >
             <X size={14} />
