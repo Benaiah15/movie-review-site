@@ -6,6 +6,7 @@ import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
 import { Analytics } from '@vercel/analytics/react';
 import SessionGuardian from "@/components/SessionGuardian";
+import AppEnhancer from "@/components/AppEnhancer"; // <-- 1. Imported the new Enhancer
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,7 +51,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden flex flex-col min-h-screen`}>
         <AuthProvider>
           <SessionGuardian> 
             <ThemeProvider
@@ -60,7 +61,10 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Navbar />
-              {children}
+              {/* 2. Wrapped children in AppEnhancer so pages animate under the navbar */}
+              <AppEnhancer>
+                {children}
+              </AppEnhancer>
             </ThemeProvider>
           </SessionGuardian>
         </AuthProvider>
