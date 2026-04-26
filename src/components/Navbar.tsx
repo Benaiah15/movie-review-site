@@ -13,14 +13,25 @@ export default function Navbar() {
   const { data: session } = useSession();
   const user = session?.user;
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
+  // ==========================================
+  // Premium Animation States
+  // ==========================================
+  
+  // Mobile Menu State
+  const [isMobileMenuMounted, setIsMobileMenuMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Notifications State
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [isNotifMounted, setIsNotifMounted] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Fetch Notifications
   useEffect(() => {
     setMounted(true);
     if (user) {
@@ -38,38 +49,69 @@ export default function Navbar() {
     }
   }, [user]);
 
+  // Click Outside Logic (Closes notifications smoothly)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
+        if (isNotifOpen) {
+          setIsNotifOpen(false);
+          setTimeout(() => setIsNotifMounted(false), 300); // Wait for animation to finish
+        }
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isNotifOpen]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  // Toggle Notifications with Animation
   const handleToggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-    if (!showNotifications && unreadCount > 0) {
-      fetch("/api/notifications", { method: "PATCH" });
-      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+    if (isNotifOpen) {
+      setIsNotifOpen(false);
+      setTimeout(() => setIsNotifMounted(false), 300);
+    } else {
+      setIsNotifMounted(true);
+      setTimeout(() => setIsNotifOpen(true), 10);
+      
+      // Mark as read when opening
+      if (unreadCount > 0) {
+        fetch("/api/notifications", { method: "PATCH" });
+        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+      }
+    }
+  };
+
+  // Toggle Mobile Menu with Animation
+  const handleToggleMobileMenu = () => {
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+      setTimeout(() => setIsMobileMenuMounted(false), 300);
+    } else {
+      setIsMobileMenuMounted(true);
+      setTimeout(() => setIsMobileMenuOpen(true), 10);
     }
   };
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "U";
-  const closeMenu = () => {
+  
+  // Close everything smoothly on link click
+  const closeAllMenus = () => {
     setIsMobileMenuOpen(false);
-    setShowNotifications(false);
+    setIsNotifOpen(false);
+    setTimeout(() => {
+      setIsMobileMenuMounted(false);
+      setIsNotifMounted(false);
+    }, 300);
   };
 
   return (
-    <nav className="border-b dark:border-zinc-800 border-gray-200 dark:bg-zinc-950/80 bg-white/80 backdrop-blur-md sticky top-0 z-50 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <nav className="border-b dark:border-zinc-800 border-gray-200 dark:bg-zinc-950/80 bg-white/80 backdrop-blur-md sticky top-0 z-50 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between relative">
         
+        {/* LOGO & DESKTOP LINKS */}
         <div className="flex items-center gap-10">
-          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 sm:gap-3 group">
+          <Link href="/" onClick={closeAllMenus} className="flex items-center gap-2 sm:gap-3 group">
             <div className="relative w-8 h-8 md:w-9 md:h-9 flex-shrink-0">
               <Image 
                 src="/logo.png" 
@@ -102,8 +144,10 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* ICONS & ACTIONS (Right Side) */}
         <div className="flex items-center gap-2 sm:gap-4">
           
+          {/* THE NOTIFICATION BELL */}
           {user && (
             <div className="relative" ref={dropdownRef}>
               <button 
@@ -116,9 +160,13 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* CRITICAL FIX: Fixed on mobile, Absolute on Desktop! */}
-              {showNotifications && (
-                <div className="fixed top-16 left-4 right-4 sm:absolute sm:top-12 sm:right-0 sm:left-auto sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-in slide-in-from-top-2">
+              {/* iOS-STYLE ANIMATED NOTIFICATION DROPDOWN */}
+              {isNotifMounted && (
+                <div 
+                  className={`fixed top-16 left-4 right-4 sm:absolute sm:top-12 sm:right-0 sm:left-auto sm:w-[350px] max-h-[400px] overflow-y-auto dark:bg-zinc-950 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl shadow-2xl z-50 py-2 origin-top-right transform transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    isNotifOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-4 pointer-events-none"
+                  }`}
+                >
                   <div className="px-4 py-2 border-b dark:border-zinc-800 border-gray-200 flex justify-between items-center sticky top-0 dark:bg-zinc-950 bg-white z-10">
                     <h3 className="font-bold dark:text-white text-zinc-900 text-sm">Notifications</h3>
                     {unreadCount > 0 && <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{unreadCount} New</span>}
@@ -134,7 +182,7 @@ export default function Navbar() {
                         <Link 
                           key={notif.id} 
                           href={notif.link || "#"} 
-                          onClick={() => setShowNotifications(false)}
+                          onClick={closeAllMenus}
                           className={`flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors border-b dark:border-zinc-800/50 border-gray-100 last:border-0 ${!notif.isRead ? 'dark:bg-zinc-900/30 bg-red-50/30' : ''}`}
                         >
                           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 dark:bg-zinc-800 bg-gray-200">
@@ -161,6 +209,7 @@ export default function Navbar() {
             </div>
           )}
 
+          {/* THEME TOGGLE */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -171,6 +220,7 @@ export default function Navbar() {
             </button>
           )}
 
+          {/* DESKTOP PROFILE */}
           <div className="hidden md:flex items-center gap-6">
             {user ? (
               <div className="flex items-center gap-6">
@@ -206,8 +256,9 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* MOBILE HAMBURGER BUTTON */}
           <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+            onClick={handleToggleMobileMenu} 
             className="md:hidden dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 p-1.5 transition-colors"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -215,31 +266,36 @@ export default function Navbar() {
         </div>
       </div>
 
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full dark:bg-zinc-950 bg-white border-b dark:border-zinc-800 border-gray-200 shadow-2xl px-6 py-4 flex flex-col gap-2 animate-in slide-in-from-top-2 transition-colors">
-          <Link href="/" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+      {/* iOS-STYLE ANIMATED MOBILE MENU PANEL */}
+      {isMobileMenuMounted && (
+        <div 
+          className={`md:hidden absolute top-16 left-0 w-full dark:bg-zinc-950 bg-white border-b dark:border-zinc-800 border-gray-200 shadow-2xl px-6 py-4 flex flex-col gap-2 origin-top transform transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+          }`}
+        >
+          <Link href="/" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Home size={18} /> Home
           </Link>
-          <Link href="/movies" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+          <Link href="/movies" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Film size={18} /> Movies
           </Link>
-          <Link href="/news" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+          <Link href="/news" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Newspaper size={18} /> News
           </Link>
           
           {user ? (
             <>
-              <Link href="/feed" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+              <Link href="/feed" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                 <Users size={18} /> Feed
               </Link>
               {user.name === "Admin" && (
-                <Link href="/admin" onClick={closeMenu} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
+                <Link href="/admin" onClick={closeAllMenus} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
                   <LayoutDashboard size={18} /> Admin Dashboard
                 </Link>
               )}
               
               <div className="border-t dark:border-zinc-800 border-gray-200 mt-2 pt-2 transition-colors">
-                <Link href="/profile" onClick={closeMenu} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+                <Link href="/profile" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                   {user.image ? (
                      <img src={user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover border dark:border-zinc-800 border-gray-200" />
                   ) : (
@@ -247,15 +303,15 @@ export default function Navbar() {
                   )}
                   My Profile
                 </Link>
-                <button onClick={() => { signOut(); closeMenu(); }} className="flex items-center gap-3 text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 py-3 w-full text-left font-medium transition-colors">
+                <button onClick={() => { signOut(); closeAllMenus(); }} className="flex items-center gap-3 text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 py-3 w-full text-left font-medium transition-colors">
                   <LogOut size={18} /> Sign Out
                 </button>
               </div>
             </>
           ) : (
             <div className="flex flex-col gap-3 pt-4 mt-2 border-t dark:border-zinc-800 border-gray-200 transition-colors">
-              <Link href="/login" onClick={closeMenu} className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-2.5 text-center font-bold border dark:border-zinc-800 border-gray-300 rounded-lg transition-colors">Sign In</Link>
-              <Link href="/register" onClick={closeMenu} className="bg-red-600 text-white py-2.5 rounded-lg text-center font-bold hover:bg-red-700 transition-colors shadow-sm">Register</Link>
+              <Link href="/login" onClick={closeAllMenus} className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-2.5 text-center font-bold border dark:border-zinc-800 border-gray-300 rounded-lg transition-colors">Sign In</Link>
+              <Link href="/register" onClick={closeAllMenus} className="bg-red-600 text-white py-2.5 rounded-lg text-center font-bold hover:bg-red-700 transition-colors shadow-sm">Register</Link>
             </div>
           )}
         </div>
