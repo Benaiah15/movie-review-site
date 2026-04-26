@@ -4,24 +4,42 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Download, X, Share } from "lucide-react";
 
+// =======================================================================
+// 1. THE STRICT REMOUNT COMPONENT
+// This guarantees the animation plays by forcing a rebuild on route change
+// =======================================================================
+function PageTransition({ children }: { children: React.ReactNode }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // A tiny 20ms delay guarantees the browser paints the invisible state first, 
+    // forcing the CSS transition to execute when it turns visible.
+    const timer = setTimeout(() => setShow(true), 20);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      className={`flex-1 flex flex-col w-full min-h-screen transform transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// =======================================================================
+// 2. THE MAIN ENHANCER
+// =======================================================================
 export default function AppEnhancer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // 1. Animation State (Controls the page glide)
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
-
-  // 2. PWA State
+  // PWA State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(true); // Default to true to prevent flashes
-
-  // Trigger Page Animation perfectly on EVERY route change
-  useEffect(() => {
-    setIsPageLoaded(false); // Instantly drop opacity to 0
-    const timer = setTimeout(() => setIsPageLoaded(true), 50); // Glide it up smoothly
-    return () => clearTimeout(timer);
-  }, [pathname]);
+  const [isStandalone, setIsStandalone] = useState(true);
 
   // PWA Detection Logic
   useEffect(() => {
@@ -62,20 +80,14 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
 
   return (
     <>
-      {/* ========================================= */}
-      {/* THE PAGE ANIMATION (Native Tailwind)        */}
-      {/* ========================================= */}
-      <div
-        className={`flex-1 flex flex-col w-full min-h-screen transform transition-all duration-[500ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-        }`}
-      >
+      {/* By passing key={pathname} to our custom PageTransition, 
+        Next.js is FORCED to run the animation on every click!
+      */}
+      <PageTransition key={pathname}>
         {children}
-      </div>
+      </PageTransition>
 
-      {/* ========================================= */}
-      {/* THE INSTALL BANNER ANIMATION                */}
-      {/* ========================================= */}
+      {/* THE INSTALL BANNER */}
       {!isStandalone && (
         <div
           className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-2xl transform transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center gap-4 ${
