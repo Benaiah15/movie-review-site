@@ -8,8 +8,8 @@ import SidebarLinks from "@/components/admin/SidebarLinks";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
-  // Verifies against the secure .env file
-  if (!session || session?.user?.email !== process.env.MASTER_ADMIN_EMAIL) {
+  // THE FORTRESS: Verifies the true DB role of the session
+  if (!session || (session.user as any).role !== "ADMIN") {
     redirect("/admin/login");
   }
 

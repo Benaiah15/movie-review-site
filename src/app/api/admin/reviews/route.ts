@@ -6,7 +6,11 @@ import db from "@/lib/db";
 // Fetch all reviews AND their nested comments
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
-  if (session?.user?.name !== "Admin") return new NextResponse("Unauthorized", { status: 401 });
+  
+  // THE FIX: Strict Role-Based Access Control (RBAC) check
+  if (!session || (session.user as any).role !== "ADMIN") {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
 
   const reviews = await db.review.findMany({
     orderBy: { createdAt: 'desc' },
@@ -27,7 +31,11 @@ export async function GET(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user?.name !== "Admin") return new NextResponse("Unauthorized", { status: 401 });
+    
+    // THE FIX: Strict Role-Based Access Control (RBAC) check
+    if (!session || (session.user as any).role !== "ADMIN") {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     const { reviewId, commentId } = await req.json();
 

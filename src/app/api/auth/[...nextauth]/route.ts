@@ -27,7 +27,11 @@ export const authOptions: AuthOptions = {
             const masterEmail = process.env.MASTER_ADMIN_EMAIL!;
             let adminUser = await db.user.findUnique({ where: { email: masterEmail } });
             if (!adminUser) {
-              adminUser = await db.user.create({ data: { email: masterEmail, name: "Admin", rank: 100, level: 100 } });
+              // Ensure created Master Admins get the ADMIN role
+              adminUser = await db.user.create({ data: { email: masterEmail, name: "Admin", rank: 100, level: 100, role: "ADMIN" } });
+            } else if (adminUser.role !== "ADMIN") {
+              // Self-heal: If the master email doesn't have the role, give it to them
+              adminUser = await db.user.update({ where: { email: masterEmail }, data: { role: "ADMIN" } });
             }
             return adminUser;
           }
@@ -53,11 +57,12 @@ export const authOptions: AuthOptions = {
   pages: { signIn: '/login' },
   session: { strategy: "jwt" },
   callbacks: {
-    // THE FIX: We use NextAuth's native token pipeline to enforce Admin status securely
+    // We use NextAuth's native token pipeline to enforce the Role from the DB securely
     async jwt({ token, user }) {
       if (user) { 
         token.id = user.id; 
         token.level = (user as any).level || 1;
+        token.role = (user as any).role || "USER";
       }
       
       const safeEmail = token.email || "";
@@ -66,15 +71,16 @@ export const authOptions: AuthOptions = {
       if (isMasterAdmin) { 
         token.name = "Admin"; 
         token.level = 100;
-        token.isAdmin = true; // Bulletproof flag
+        token.role = "ADMIN";
+        token.isAdmin = true;
         
-        // Silently correct the database in the background if Google overwrote the name
+        // Silently correct the database in the background if Google overwrote the name or missing role
         db.user.updateMany({
            where: { email: safeEmail },
-           data: { name: "Admin", rank: 100, level: 100 }
+           data: { name: "Admin", rank: 100, level: 100, role: "ADMIN" }
         }).catch(()=>null);
       } else {
-        token.isAdmin = false;
+        token.isAdmin = token.role === "ADMIN";
       }
       
       return token;
@@ -83,6 +89,7 @@ export const authOptions: AuthOptions = {
       if (session.user) { 
          (session.user as any).id = token.id; 
          (session.user as any).level = token.level;
+         (session.user as any).role = token.role;
          (session.user as any).isAdmin = token.isAdmin;
 
          if (token.isAdmin) {

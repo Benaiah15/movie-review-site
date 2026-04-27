@@ -6,6 +6,14 @@ datasource db {
   provider = "postgresql"
 }
 
+// ==========================================
+// ENUMS
+// ==========================================
+enum Role {
+  USER
+  ADMIN
+}
+
 model Movie {
   id           String   @id @default(cuid())
   tmdbId       Int?     @unique
@@ -19,7 +27,7 @@ model Movie {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   topFourUsers User[]   @relation("TopFour")
-  collections Collection[] @relation("CollectionMovies")
+  collections  Collection[] @relation("CollectionMovies")
 
   reviews      Review[]
   favoritedBy  User[]   @relation("FavoriteMovies")
@@ -126,9 +134,13 @@ model User {
   hashedPassword String?  
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  
+  // --- SECURE RBAC FIELD ---
+  role           Role      @default(USER)
+
   topFourMovies  Movie[]   @relation("TopFour")
   newsArticles   NewsArticle[]
-  collections Collection[] @relation("UserCollections")
+  collections    Collection[] @relation("UserCollections")
 
   // --- MovieSpace Custom Fields ---
   bio            String?
