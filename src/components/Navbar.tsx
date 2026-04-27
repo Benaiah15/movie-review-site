@@ -288,7 +288,7 @@ export default function Navbar() {
               <Link href="/feed" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                 <Users size={18} /> Feed
               </Link>
-              {user.role === "ADMIN" && (
+              {(user as any).role === "ADMIN"} && (
                 <Link href="/admin" onClick={closeAllMenus} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
                   <LayoutDashboard size={18} /> Admin Dashboard
                 </Link>
