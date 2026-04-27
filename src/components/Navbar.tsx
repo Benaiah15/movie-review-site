@@ -224,7 +224,9 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6">
             {user ? (
               <div className="flex items-center gap-6">
-                {user.name === "Admin" && (
+                
+                {/* Desktop Admin Check */}
+                {(user as any).role === "ADMIN" && (
                   <Link href="/admin" className="text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors flex items-center gap-2">
                     <LayoutDashboard size={16} /> Admin
                   </Link>
@@ -288,7 +290,9 @@ export default function Navbar() {
               <Link href="/feed" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                 <Users size={18} /> Feed
               </Link>
-              {(user as any).role === "ADMIN"} && (
+              
+              {/* Mobile Admin Check */}
+              {(user as any).role === "ADMIN" && (
                 <Link href="/admin" onClick={closeAllMenus} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
                   <LayoutDashboard size={18} /> Admin Dashboard
                 </Link>
