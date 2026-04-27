@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "MovieSpace",
   description: "Your Cinematic Universe",
   manifest: "/manifest.json",
+  verification: {
+    google: "yft5cshDJWPaw8mfaVg9tzC9tFbXAYVaQn9hUGh6JqI", 
+  },
 };
 
 // PWA Theme Color integration

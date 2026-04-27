@@ -9,6 +9,35 @@ import TopFourButton from "@/components/TopFourButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import CollectionModal from "@/components/CollectionModal";
+import type { Metadata } from "next";
+
+// This tells Next.js to fetch the movie data on the server BEFORE sending it to Google
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const movieId = resolvedParams.id;
+  
+  // Fetch the basic movie info from TMDB just for the title
+  const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.TMDB_API_KEY}`);
+  const movie = await res.json();
+
+  if (!movie.title) {
+    return { title: "Movie Not Found | MovieSpace" };
+  }
+
+  // This creates the perfect, clickable Google search result
+  return {
+    title: `${movie.title} (${movie.release_date?.substring(0,4)}) - Reviews & Ratings | MovieSpace`,
+    description: `Read reviews, see ratings, and join the discussion for ${movie.title} on MovieSpace.`,
+    openGraph: {
+      title: `${movie.title} - MovieSpace`,
+      description: movie.overview?.substring(0, 150) + "...",
+      images: [`https://image.tmdb.org/t/p/w500${movie.poster_path}`],
+    },
+    twitter: {
+      card: "summary_large_image",
+    }
+  };
+}
 
 export const revalidate = 60;
 
