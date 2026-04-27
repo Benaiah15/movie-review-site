@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   if (request.method !== "GET") {
     
     // Get the user's IP address (Vercel provides this automatically)
-    const ip = request.ip ?? "127.0.0.1";
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
     
     // Check if they are exceeding the limit
     const { success, pending, limit, reset, remaining } = await ratelimit.limit(ip);
