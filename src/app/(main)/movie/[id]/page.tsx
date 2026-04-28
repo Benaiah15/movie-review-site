@@ -319,7 +319,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     
                     <div className="flex gap-4 overflow-x-auto py-6 px-2 -mx-2 snap-x scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full">
                       {similarMovies.map((sm: any) => (
-                        <Link href={`/movie/${sm.id}`} key={sm.id} className="w-[130px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-2">
+                        <Link href={`/movie/${sm.id}`} rel="nofollow" key={sm.id} className="w-[130px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-2">
                           <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_8px_20px_rgba(220,38,38,0.2)] dark:group-hover:border-red-500/50 group-hover:border-red-500/50">
                             {sm.poster_path ? (
                               <Image src={`https://image.tmdb.org/t/p/w300${sm.poster_path}`} alt={sm.title} fill sizes="160px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
