@@ -31,7 +31,7 @@ export default function Navbar() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch Notifications
+ // Fetch Notifications
   useEffect(() => {
     setMounted(true);
     if (user) {
@@ -44,11 +44,13 @@ export default function Navbar() {
           .catch(() => null);
       };
       fetchNotifs(); 
-      const interval = setInterval(fetchNotifs, 15000); 
+      
+      // THE FIX: Changed from 15 seconds (15000) to 5 minutes (300000)
+      const interval = setInterval(fetchNotifs, 300000); 
       return () => clearInterval(interval); 
     }
   }, [user]);
-
+  
   // Click Outside Logic (Closes notifications smoothly)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
