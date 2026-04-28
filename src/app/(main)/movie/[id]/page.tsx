@@ -280,7 +280,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-6 flex items-center gap-2 transition-colors"><Users size={20} className="text-red-500 flex-shrink-0"/> Top Cast</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
                       {cast.map((person: any) => (
-                        <Link href={`/person/${person.id}`} key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group w-full overflow-hidden">
+                        <Link href={`/person/${person.id}`} rel="nofollow" key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group w-full overflow-hidden">
                           <div className="w-12 h-12 rounded-full overflow-hidden dark:bg-zinc-800 bg-gray-100 flex-shrink-0 border-2 border-transparent group-hover:border-red-500 transition-colors">
                             {person.profile_path ? (
                               <img src={`https://image.tmdb.org/t/p/w200${person.profile_path}`} alt={person.name} className="w-full h-full object-cover" />
