@@ -87,35 +87,53 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
         </div>
       );
     } 
-    try {
-      movie = await db.movie.create({
-        data: {
-          tmdbId: tmdbData.id,
-          title: tmdbData.title || tmdbData.original_title || "Unknown Title",
-          description: tmdbData.overview || "No synopsis available.",
-          releaseDate: tmdbData.release_date || null,
-          posterPath: tmdbData.poster_path || null,
-          backdropPath: tmdbData.backdrop_path || null,
-          rating: tmdbData.vote_average || 0,
-          isPublished: true
-        },
-        include: { 
-          favoritedBy: { select: { id: true } }, 
-          topFourUsers: { select: { id: true } }, 
-          reviews: { 
-            include: { 
-              user: { select: { id: true, name: true, image: true, level: true } }, 
-              likes: true, 
-              comments: { include: { user: { select: { id: true, name: true, image: true, level: true } } } } 
+    
+    // THE FIX: BOT BLOCKER
+    // Only write to the database if an actual user is logged in!
+    if (session?.user) {
+      try {
+        movie = await db.movie.create({
+          data: {
+            tmdbId: tmdbData.id,
+            title: tmdbData.title || tmdbData.original_title || "Unknown Title",
+            description: tmdbData.overview || "No synopsis available.",
+            releaseDate: tmdbData.release_date || null,
+            posterPath: tmdbData.poster_path || null,
+            backdropPath: tmdbData.backdrop_path || null,
+            rating: tmdbData.vote_average || 0,
+            isPublished: true
+          },
+          include: { 
+            favoritedBy: { select: { id: true } }, 
+            topFourUsers: { select: { id: true } }, 
+            reviews: { 
+              include: { 
+                user: { select: { id: true, name: true, image: true, level: true } }, 
+                likes: true, 
+                comments: { include: { user: { select: { id: true, name: true, image: true, level: true } } } } 
+              } 
             } 
-          } 
-        }
-      });
-    } catch (err) {
+          }
+        });
+      } catch (err) {
+        // Silent catch
+      }
+    } 
+    
+    // If there is no session (it's a bot or guest), just mock the data. Database stays at 0 bytes!
+    if (!movie) {
       movie = {
-        id: rawId, tmdbId: tmdbData.id, title: tmdbData.title || "Unknown Title", description: tmdbData.overview || "No synopsis.",
-        releaseDate: tmdbData.release_date || null, posterPath: tmdbData.poster_path || null, backdropPath: tmdbData.backdrop_path || null,
-        rating: tmdbData.vote_average || 0, favoritedBy: [], topFourUsers: [], reviews: []
+        id: `temp_${tmdbData.id}`, 
+        tmdbId: tmdbData.id, 
+        title: tmdbData.title || tmdbData.original_title || "Unknown Title", 
+        description: tmdbData.overview || "No synopsis.",
+        releaseDate: tmdbData.release_date || null, 
+        posterPath: tmdbData.poster_path || null, 
+        backdropPath: tmdbData.backdrop_path || null,
+        rating: tmdbData.vote_average || 0, 
+        favoritedBy: [], 
+        topFourUsers: [], 
+        reviews: []
       } as any;
     }
   }
@@ -203,7 +221,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 </div>
 
-                {/* CRITICAL FIX: Fully Centered on Mobile, Start-aligned on Desktop */}
                 <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 w-full mb-8">
                   <div className="w-full sm:w-auto flex justify-center"><WatchlistButton movieId={movie.id} initialIsSaved={isSaved} /></div>
                   <div className="w-full sm:w-auto flex justify-center"><CollectionModal movieId={movie.id} /></div>
