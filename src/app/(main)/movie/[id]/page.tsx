@@ -280,7 +280,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-6 flex items-center gap-2 transition-colors"><Users size={20} className="text-red-500 flex-shrink-0"/> Top Cast</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
                       {cast.map((person: any) => (
-                        <Link href={`/person/${person.id}`} rel="nofollow" key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group w-full overflow-hidden">
+                        <Link href={`/person/${person.id}`} rel="nofollow" prefetch={false} key={person.id} className="flex items-center gap-3 dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-2.5 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 shadow-sm transition-colors group w-full overflow-hidden">
                           <div className="w-12 h-12 rounded-full overflow-hidden dark:bg-zinc-800 bg-gray-100 flex-shrink-0 border-2 border-transparent group-hover:border-red-500 transition-colors">
                             {person.profile_path ? (
                               <img src={`https://image.tmdb.org/t/p/w200${person.profile_path}`} alt={person.name} className="w-full h-full object-cover" />
@@ -319,7 +319,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     
                     <div className="flex gap-4 overflow-x-auto py-6 px-2 -mx-2 snap-x scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full">
                       {similarMovies.map((sm: any) => (
-                        <Link href={`/movie/${sm.id}`} rel="nofollow" key={sm.id} className="w-[130px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-2">
+                        <Link href={`/movie/${sm.id}`} rel="nofollow" prefetch={false} key={sm.id} className="w-[130px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-2">
                           <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_8px_20px_rgba(220,38,38,0.2)] dark:group-hover:border-red-500/50 group-hover:border-red-500/50">
                             {sm.poster_path ? (
                               <Image src={`https://image.tmdb.org/t/p/w300${sm.poster_path}`} alt={sm.title} fill sizes="160px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
