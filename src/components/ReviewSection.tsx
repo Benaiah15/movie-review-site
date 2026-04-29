@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply, UserPlus, UserCheck } from "lucide-react";
+import { Star, MessageSquare, Loader2, UserCircle, ThumbsUp, Reply, UserPlus, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -32,6 +32,14 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- PAGINATION STATE ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const REVIEWS_PER_PAGE = 5; // Adjust this number to show more/less reviews per page
+
+  const totalPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
+  const startIndex = (currentPage - 1) * REVIEWS_PER_PAGE;
+  const currentReviews = reviews.slice(startIndex, startIndex + REVIEWS_PER_PAGE);
+
   const currentUserId = (session?.user as any)?.id; 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +56,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
         setIsFormOpen(false);
         setContent("");
         setRating(5);
+        setCurrentPage(1); // Snap back to page 1 to see the new review!
         router.refresh(); 
       } else {
         const error = await res.text();
@@ -71,10 +80,15 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
   return (
     <div className="pt-8 mt-8 border-t dark:border-zinc-800 border-gray-200 transition-colors w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <h3 className="text-xl sm:text-2xl font-bold dark:text-white text-zinc-900 flex items-center gap-2 transition-colors">
-          <MessageSquare className="text-red-600 flex-shrink-0" size={20} />
-          Community Reviews
-        </h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl sm:text-2xl font-bold dark:text-white text-zinc-900 flex items-center gap-2 transition-colors">
+            <MessageSquare className="text-red-600 flex-shrink-0" size={20} />
+            Community Reviews
+          </h3>
+          <span className="text-xs font-bold dark:text-zinc-400 text-zinc-500 dark:bg-zinc-800 bg-gray-200 px-2.5 py-1 rounded-md">
+            {reviews.length} Total
+          </span>
+        </div>
         
         {session ? (
           <button 
@@ -128,7 +142,8 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
             <p className="text-sm dark:text-zinc-500 text-zinc-500 transition-colors">No reviews yet. Be the first!</p>
           </div>
         ) : (
-          reviews.map((review) => {
+          // Use currentReviews instead of reviews
+          currentReviews.map((review) => {
             const badge = getCinephileBadge(review.user.level || 1);
             return (
               <div key={review.id} className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm transition-colors w-full overflow-hidden">
@@ -140,7 +155,6 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                     </Link>
                     
                     <div className="flex flex-col flex-1 min-w-0">
-                      {/* CRITICAL FIX: Flex wrap allows the Follow button to sit next to long names comfortably */}
                       <div className="flex flex-wrap items-center gap-2 w-full pr-1">
                         <Link href={`/user/${review.user.id}`} className="font-bold text-sm sm:text-base dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1">
                           <span className="break-words line-clamp-1">{review.user.name || "Anonymous"}</span> 
@@ -200,11 +214,53 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
           })
         )}
       </div>
+
+      {/* --- STYLISH CLIENT-SIDE PAGINATION --- */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8 border-t dark:border-zinc-800 border-gray-200 pt-6">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+              currentPage === 1 
+                ? "opacity-30 cursor-not-allowed dark:text-zinc-500 text-zinc-400" 
+                : "dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 dark:text-zinc-300 text-zinc-700 hover:text-red-600"
+            }`}
+          >
+            <ChevronLeft size={16} /> Prev
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold dark:text-zinc-500 text-zinc-400 uppercase tracking-wider hidden sm:block">Page</span>
+            <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600 text-white font-bold text-sm shadow-[0_0_10px_rgba(220,38,38,0.3)]">
+              {currentPage}
+            </span>
+            <span className="text-sm font-bold dark:text-zinc-500 text-zinc-400 mx-1">of</span>
+            <span className="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-zinc-900 bg-gray-100 border dark:border-zinc-800 border-gray-200 dark:text-zinc-400 text-zinc-600 font-bold text-sm">
+              {totalPages}
+            </span>
+          </div>
+
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+              currentPage === totalPages 
+                ? "opacity-30 cursor-not-allowed dark:text-zinc-500 text-zinc-400" 
+                : "dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 dark:text-zinc-300 text-zinc-700 hover:text-red-600"
+            }`}
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }
 
 // --- SUB-COMPONENTS ---
+// (These remain completely unchanged from your original code!)
 
 function MiniFollowButton({ targetUserId, currentUserId }: { targetUserId: string, currentUserId?: string }) {
   const router = useRouter();

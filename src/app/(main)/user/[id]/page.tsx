@@ -4,26 +4,27 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, PlayCircle, BarChart3, Pin, X, Library } from "lucide-react"; 
+import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, PlayCircle, BarChart3, Pin, X, Library, ChevronLeft, ChevronRight } from "lucide-react"; 
 import { getCinephileBadge } from "@/lib/gamification";
 import FollowButton from "@/components/FollowButton";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
-export default async function PublicProfilePage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ tab?: string, modal?: string }> }) {
+export default async function PublicProfilePage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ tab?: string, modal?: string, page?: string }> }) {
   const resolvedParams = await params;
   const session = await getServerSession(authOptions);
   const targetUserId = resolvedParams.id;
   const currentUserId = (session?.user as any)?.id;
 
   if (currentUserId === targetUserId) {
-    redirect("/profile");
+    redirect("/user"); // Fallback if they click their own profile
   }
 
   const queryParams = await searchParams;
   const currentTab = queryParams.tab || "activity";
   const modal = queryParams.modal;
+  const currentPage = parseInt(queryParams.page || "1");
 
   const user = await db.user.findUnique({
     where: { id: targetUserId },
@@ -33,12 +34,13 @@ export default async function PublicProfilePage({ params, searchParams }: { para
       topFourMovies: true,
       favoriteMovies: { orderBy: { createdAt: "desc" } }, 
       reviews: { include: { movie: true, likes: true }, orderBy: { createdAt: "desc" } },
-      collections: { include: { movies: true }, orderBy: { createdAt: "desc" } }, // ADDED COLLECTIONS QUERY
+      collections: { include: { movies: true }, orderBy: { createdAt: "desc" } },
     },
   });
 
   if (!user) notFound();
 
+  // OVERALL STATS (Uses the full array, regardless of pagination)
   const totalReviews = user.reviews.length;
   const totalUpvotesReceived = user.reviews.reduce((acc, review) => acc + review.likes.length, 0);
   const userInitial = user.name ? user.name.charAt(0).toUpperCase() : "U";
@@ -49,6 +51,55 @@ export default async function PublicProfilePage({ params, searchParams }: { para
   user.reviews.forEach(r => { if (r.rating >= 1 && r.rating <= 10) ratingDistribution[r.rating - 1]++; });
   const maxRatingCount = Math.max(...ratingDistribution, 1); 
 
+  // ================= PAGINATION MATH =================
+  const REVIEWS_PER_PAGE = 5;
+  const COLLECTIONS_PER_PAGE = 4;
+  const WATCHLIST_PER_PAGE = 12;
+
+  const currentReviews = user.reviews.slice((currentPage - 1) * REVIEWS_PER_PAGE, currentPage * REVIEWS_PER_PAGE);
+  const totalReviewPages = Math.ceil(user.reviews.length / REVIEWS_PER_PAGE);
+
+  const currentCollections = user.collections.slice((currentPage - 1) * COLLECTIONS_PER_PAGE, currentPage * COLLECTIONS_PER_PAGE);
+  const totalCollectionPages = Math.ceil(user.collections.length / COLLECTIONS_PER_PAGE);
+
+  const currentWatchlist = user.favoriteMovies.slice((currentPage - 1) * WATCHLIST_PER_PAGE, currentPage * WATCHLIST_PER_PAGE);
+  const totalWatchlistPages = Math.ceil(user.favoriteMovies.length / WATCHLIST_PER_PAGE);
+
+  // Reusable UI Component for the Pagination Bar
+  const renderPagination = (totalPages: number) => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center justify-between mt-8 border-t dark:border-zinc-800 border-gray-200 pt-6">
+        {currentPage > 1 ? (
+          <Link scroll={false} href={`?tab=${currentTab}&page=${currentPage - 1}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:text-zinc-300 text-zinc-700 hover:text-red-600">
+            <ChevronLeft size={16} /> Prev
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold opacity-30 cursor-not-allowed dark:text-zinc-500 text-zinc-400">
+            <ChevronLeft size={16} /> Prev
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold dark:text-zinc-500 text-zinc-400 uppercase tracking-wider hidden sm:block">Page</span>
+          <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600 text-white font-bold text-sm shadow-[0_0_10px_rgba(220,38,38,0.3)]">{currentPage}</span>
+          <span className="text-sm font-bold dark:text-zinc-500 text-zinc-400 mx-1">of</span>
+          <span className="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-zinc-900 bg-gray-100 border dark:border-zinc-800 border-gray-200 dark:text-zinc-400 text-zinc-600 font-bold text-sm">{totalPages}</span>
+        </div>
+
+        {currentPage < totalPages ? (
+          <Link scroll={false} href={`?tab=${currentTab}&page=${currentPage + 1}`} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:text-zinc-300 text-zinc-700 hover:text-red-600">
+            Next <ChevronRight size={16} />
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold opacity-30 cursor-not-allowed dark:text-zinc-500 text-zinc-400">
+            Next <ChevronRight size={16} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen dark:bg-zinc-950 bg-gray-50 pb-20 pt-8 px-4 md:px-8 transition-colors duration-300 overflow-x-hidden relative">
       
@@ -58,7 +109,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
           <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Followers ({user.followers.length})</h3>
-              <Link href="?tab=activity" className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
+              <Link href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
             <div className="max-h-96 overflow-y-auto space-y-4">
               {user.followers.map(f => (
@@ -80,7 +131,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
           <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Following ({user.following.length})</h3>
-              <Link href="?tab=activity" className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
+              <Link href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
             <div className="max-h-96 overflow-y-auto space-y-4">
               {user.following.map(f => (
@@ -130,12 +181,12 @@ export default async function PublicProfilePage({ params, searchParams }: { para
               </div>
 
              <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
-               <Link href="?modal=followers" scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+               <Link href={`?tab=${currentTab}&page=${currentPage}&modal=followers`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.followers.length}</span>
                  <span className="text-[10px] uppercase tracking-wider font-semibold">Followers</span>
                </Link>
                <div className="w-px h-8 dark:bg-zinc-800 bg-gray-200 transition-colors"></div>
-               <Link href="?modal=following" scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+               <Link href={`?tab=${currentTab}&page=${currentPage}&modal=following`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.following.length}</span>
                  <span className="text-[10px] uppercase tracking-wider font-semibold">Following</span>
                </Link>
@@ -143,17 +194,17 @@ export default async function PublicProfilePage({ params, searchParams }: { para
           </div>
 
           <nav className="flex flex-col gap-2 w-full">
-            <Link href="?tab=activity" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "activity" ? "dark:bg-red-600/10 bg-red-50 dark:text-red-500 text-red-600 border dark:border-red-500/20 border-red-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            {/* Added &page=1 so switching tabs always resets the pagination cleanly! */}
+            <Link href="?tab=activity&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "activity" ? "dark:bg-red-600/10 bg-red-50 dark:text-red-500 text-red-600 border dark:border-red-500/20 border-red-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <LayoutDashboard size={18} /> {user.name?.split(" ")[0]}'s Activity
             </Link>
 
-            {/* NEW: COLLECTIONS NAV LINK */}
-            <Link href="?tab=collections" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "collections" ? "dark:bg-purple-500/10 bg-purple-50 dark:text-purple-500 text-purple-600 border dark:border-purple-500/20 border-purple-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            <Link href="?tab=collections&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "collections" ? "dark:bg-purple-500/10 bg-purple-50 dark:text-purple-500 text-purple-600 border dark:border-purple-500/20 border-purple-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <Library size={18} /> Custom Lists
               <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.collections.length}</span>
             </Link>
 
-            <Link href="?tab=watchlist" className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "watchlist" ? "dark:bg-amber-500/10 bg-amber-50 dark:text-amber-500 text-amber-600 border dark:border-amber-500/20 border-amber-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            <Link href="?tab=watchlist&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "watchlist" ? "dark:bg-amber-500/10 bg-amber-50 dark:text-amber-500 text-amber-600 border dark:border-amber-500/20 border-amber-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <Bookmark size={18} /> Watchlist 
               <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.favoriteMovies.length}</span>
             </Link>
@@ -161,67 +212,73 @@ export default async function PublicProfilePage({ params, searchParams }: { para
         </aside>
 
         <main className="flex-1 space-y-8 w-full max-w-full overflow-hidden">
+          
+          {/* ================= ACTIVITY TAB ================= */}
           {currentTab === "activity" && (
             <div className="animate-in fade-in duration-500 w-full">
-              <div className="mb-12 w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-pink-500 rounded-sm"></div>
-                    <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight flex items-center gap-2 transition-colors">Top 4 Favorites</h2>
+              {currentPage === 1 && (
+                <div className="mb-12 w-full">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-6 bg-pink-500 rounded-sm"></div>
+                      <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight flex items-center gap-2 transition-colors">Top 4 Favorites</h2>
+                    </div>
+                    <Pin className="text-pink-500/50" size={24} />
                   </div>
-                  <Pin className="text-pink-500/50" size={24} />
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 w-full">
-                  {[0, 1, 2, 3].map((index) => {
-                    const movie = user.topFourMovies[index];
-                    return (
-                      <div key={index} className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900/50 bg-gray-100 border dark:border-zinc-800 border-gray-200 shadow-sm group transition-colors">
-                        {movie ? (
-                          <Link href={`/movie/${movie.id}`} className="block w-full h-full">
-                            {movie.posterPath ? (
-                              <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                            ) : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 text-xs font-medium transition-colors">No Poster</div>}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                              <span className="text-white font-bold text-sm truncate drop-shadow-md w-full">{movie.title}</span>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 w-full">
+                    {[0, 1, 2, 3].map((index) => {
+                      const movie = user.topFourMovies[index];
+                      return (
+                        <div key={index} className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900/50 bg-gray-100 border dark:border-zinc-800 border-gray-200 shadow-sm group transition-colors">
+                          {movie ? (
+                            <Link href={`/movie/${movie.id}`} className="block w-full h-full">
+                              {movie.posterPath ? (
+                                <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                              ) : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 text-xs font-medium transition-colors">No Poster</div>}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                <span className="text-white font-bold text-sm truncate drop-shadow-md w-full">{movie.title}</span>
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed dark:border-zinc-800 border-gray-300 transition-all dark:text-zinc-600 text-zinc-400">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-center px-4 w-full break-words">Empty Slot</span>
                             </div>
-                          </Link>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed dark:border-zinc-800 border-gray-300 transition-all dark:text-zinc-600 text-zinc-400">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-center px-4 w-full break-words">Empty Slot</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8 w-full">
-                <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl shadow-sm transition-colors">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MessageSquare className="text-red-500" size={18} />
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Reviews</p>
+              {currentPage === 1 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8 w-full">
+                  <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl shadow-sm transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MessageSquare className="text-red-500" size={18} />
+                      <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Reviews</p>
+                    </div>
+                    <p className="text-3xl dark:text-white text-zinc-900 font-black transition-colors">{totalReviews}</p>
                   </div>
-                  <p className="text-3xl dark:text-white text-zinc-900 font-black transition-colors">{totalReviews}</p>
-                </div>
-                <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl shadow-sm transition-colors">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Award className="text-amber-500" size={18} />
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Upvotes</p>
+                  <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl shadow-sm transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Award className="text-amber-500" size={18} />
+                      <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Upvotes</p>
+                    </div>
+                    <p className="text-3xl dark:text-white text-zinc-900 font-black transition-colors">{totalUpvotesReceived}</p>
                   </div>
-                  <p className="text-3xl dark:text-white text-zinc-900 font-black transition-colors">{totalUpvotesReceived}</p>
-                </div>
-                <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl col-span-2 sm:col-span-1 shadow-sm transition-colors">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star className="text-indigo-500" size={18} />
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Joined</p>
+                  <div className="flex flex-col justify-center dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 p-5 rounded-2xl col-span-2 sm:col-span-1 shadow-sm transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star className="text-indigo-500" size={18} />
+                      <p className="text-xs dark:text-zinc-500 text-zinc-500 font-bold uppercase tracking-wider transition-colors truncate">Joined</p>
+                    </div>
+                    <p className="text-lg dark:text-white text-zinc-900 font-bold mt-1 transition-colors">{new Date(user.createdAt).getFullYear()}</p>
                   </div>
-                  <p className="text-lg dark:text-white text-zinc-900 font-bold mt-1 transition-colors">{new Date(user.createdAt).getFullYear()}</p>
                 </div>
-              </div>
+              )}
 
-              {totalReviews > 0 && (
+              {currentPage === 1 && totalReviews > 0 && (
                 <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 mb-8 shadow-sm transition-colors w-full overflow-hidden">
                   <div className="flex items-center gap-3 mb-8">
                     <BarChart3 className="text-amber-500 flex-shrink-0" size={24} />
@@ -251,12 +308,12 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                 </div>
 
                 <div className="space-y-4 w-full">
-                  {user.reviews.length === 0 ? (
+                  {currentReviews.length === 0 ? (
                     <div className="text-center py-12 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
-                      <p className="dark:text-zinc-500 text-zinc-500 mb-2 transition-colors">No reviews yet.</p>
+                      <p className="dark:text-zinc-500 text-zinc-500 mb-2 transition-colors">No reviews found on this page.</p>
                     </div>
                   ) : (
-                    user.reviews.map((review) => (
+                    currentReviews.map((review) => (
                       <div key={review.id} className="dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-4 md:p-5 flex flex-col sm:flex-row gap-5 dark:hover:border-zinc-700 hover:border-gray-300 transition-colors w-full max-w-full overflow-hidden">
                         <Link href={`/movie/${review.movie.id}`} className="w-20 sm:w-24 flex-shrink-0 relative aspect-[2/3] rounded-lg overflow-hidden border dark:border-zinc-800 border-gray-300 hidden sm:block transition-colors">
                           {review.movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w200${review.movie.posterPath}`} alt={review.movie.title} fill sizes="100px" className="object-cover hover:scale-105 transition-transform" />}
@@ -283,11 +340,12 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                     ))
                   )}
                 </div>
+                {renderPagination(totalReviewPages)}
               </div>
             </div>
           )}
 
-          {/* NEW: COLLECTIONS TAB */}
+          {/* ================= COLLECTIONS TAB ================= */}
           {currentTab === "collections" && (
             <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 animate-in fade-in duration-500 shadow-sm transition-colors w-full overflow-hidden">
               <div className="flex items-center gap-3 mb-8">
@@ -295,14 +353,14 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                 <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight transition-colors truncate">{user.name?.split(" ")[0]}'s Collections</h2>
               </div>
               
-              {user.collections.length === 0 ? (
+              {currentCollections.length === 0 ? (
                 <div className="text-center py-20 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
                   <Library size={48} className="mx-auto dark:text-zinc-700 text-zinc-300 mb-4 transition-colors" />
-                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">They haven't created any custom lists yet.</p>
+                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">No lists found on this page.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                  {user.collections.map((collection) => (
+                  {currentCollections.map((collection) => (
                     <div key={collection.id} className="dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-5 shadow-sm transition-colors">
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -326,23 +384,25 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                   ))}
                 </div>
               )}
+              {renderPagination(totalCollectionPages)}
             </div>
           )}
 
+          {/* ================= WATCHLIST TAB ================= */}
           {currentTab === "watchlist" && (
             <div className="dark:bg-zinc-900/30 bg-white border dark:border-zinc-800/50 border-gray-200 rounded-2xl p-6 md:p-8 animate-in fade-in duration-500 shadow-sm transition-colors w-full overflow-hidden">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-1.5 h-6 bg-amber-500 rounded-sm flex-shrink-0"></div>
                 <h2 className="text-2xl font-bold dark:text-white text-zinc-900 tracking-tight transition-colors truncate">{user.name?.split(" ")[0]}'s Watchlist</h2>
               </div>
-              {user.favoriteMovies.length === 0 ? (
+              {currentWatchlist.length === 0 ? (
                 <div className="text-center py-20 border border-dashed dark:border-zinc-800 border-gray-300 rounded-xl transition-colors w-full">
                   <Bookmark size={48} className="mx-auto dark:text-zinc-700 text-zinc-300 mb-4 transition-colors" />
-                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">They haven't saved any movies yet.</p>
+                  <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 transition-colors">No saved movies found on this page.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 w-full">
-                  {user.favoriteMovies.map((movie) => (
+                  {currentWatchlist.map((movie) => (
                     <Link href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-2 w-full overflow-hidden">
                       <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-lg group-hover:border-amber-500/50 transition-all">
                         {movie.posterPath ? <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 transition-colors">N/A</div>}
@@ -355,7 +415,9 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                   ))}
                 </div>
               )}
-          </div>)}
+              {renderPagination(totalWatchlistPages)}
+            </div>
+          )}
 
         </main>
       </div>

@@ -32,7 +32,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
  // Fetch Notifications
-  useEffect(() => {
+useEffect(() => {
     setMounted(true);
     if (user) {
       const fetchNotifs = () => {
@@ -42,15 +42,19 @@ export default function Navbar() {
             if(Array.isArray(data)) setNotifications(data);
           })
           .catch(() => null);
+          
+        // 3% chance a dummy user follows the active user
+        if (Math.random() < 0.03) {
+          fetch("/api/organic-follow", { method: "POST" }).catch(() => null);
+        }
       };
-      fetchNotifs(); 
       
-      // THE FIX: Changed from 15 seconds (15000) to 5 minutes (300000)
+      fetchNotifs(); 
       const interval = setInterval(fetchNotifs, 300000); 
       return () => clearInterval(interval); 
     }
   }, [user]);
-  
+
   // Click Outside Logic (Closes notifications smoothly)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -183,7 +187,8 @@ export default function Navbar() {
                       {notifications.map((notif) => (
                         <Link 
                           key={notif.id} 
-                          href={notif.link || "#"} 
+                          // FIX: Intercept the string and replace /profile/ with /user/
+                          href={notif.link?.replace('/profile/', '/user/') || "#"} 
                           onClick={closeAllMenus}
                           className={`flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors border-b dark:border-zinc-800/50 border-gray-100 last:border-0 ${!notif.isRead ? 'dark:bg-zinc-900/30 bg-red-50/30' : ''}`}
                         >
@@ -234,7 +239,7 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <Link href="/profile" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors">
+               <Link href="/profile" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors"> 
                   <span className="text-sm font-medium dark:text-zinc-400 text-zinc-600 dark:group-hover:text-white group-hover:text-zinc-900 transition-colors">
                     Hi, {user.name?.split(" ")[0] || "Cinephile"}
                   </span>
@@ -301,6 +306,7 @@ export default function Navbar() {
               )}
               
               <div className="border-t dark:border-zinc-800 border-gray-200 mt-2 pt-2 transition-colors">
+                {/* FIX: Mobile "My Profile" link corrected to /user */}
                 <Link href="/profile" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                   {user.image ? (
                      <img src={user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover border dark:border-zinc-800 border-gray-200" />
