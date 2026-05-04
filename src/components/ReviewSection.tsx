@@ -103,7 +103,7 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
       {!session && (
         <div className="dark:bg-zinc-900/50 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors w-full">
           <p className="dark:text-zinc-400 text-zinc-600 text-sm transition-colors text-center sm:text-left">Join the community to share your thoughts on this movie.</p>
-          <Link href="/login" className="px-6 py-2 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold text-sm rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition whitespace-nowrap w-full sm:w-auto text-center">
+          <Link prefetch={false} href="/login" className="px-6 py-2 dark:bg-white bg-zinc-900 dark:text-black text-white font-bold text-sm rounded-lg dark:hover:bg-zinc-200 hover:bg-zinc-800 transition whitespace-nowrap w-full sm:w-auto text-center">
             Sign In
           </Link>
         </div>
@@ -150,13 +150,13 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                 <div className="flex flex-wrap items-start justify-between mb-3 gap-2 w-full">
                   
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <Link href={`/user/${review.user.id}`} className="w-8 h-8 sm:w-10 sm:h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent hover:border-red-500 transition-colors mt-0.5">
+                    <Link prefetch={false} href={`/user/${review.user.id}`} className="w-8 h-8 sm:w-10 sm:h-10 dark:bg-zinc-800 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-transparent hover:border-red-500 transition-colors mt-0.5">
                       {review.user.image ? <img src={review.user.image} alt={review.user.name || "User"} className="w-full h-full object-cover" /> : <UserCircle size={20} className="dark:text-zinc-500 text-zinc-400" />}
                     </Link>
                     
                     <div className="flex flex-col flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 w-full pr-1">
-                        <Link href={`/user/${review.user.id}`} className="font-bold text-sm sm:text-base dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1">
+                        <Link prefetch={false} href={`/user/${review.user.id}`} className="font-bold text-sm sm:text-base dark:text-white text-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1">
                           <span className="break-words line-clamp-1">{review.user.name || "Anonymous"}</span> 
                           <span className="text-[10px] sm:text-xs flex-shrink-0" title={`Level ${review.user.level || 1}`}>{badge.icon}</span>
                         </Link>
@@ -189,12 +189,12 @@ export default function ReviewSection({ movieId, reviews }: { movieId: string, r
                       return (
                         <div key={comment.id} className="dark:bg-zinc-950/50 bg-gray-50 rounded-lg p-2.5 sm:p-3 border dark:border-zinc-800/50 border-gray-200 transition-colors w-full overflow-hidden">
                           <div className="flex items-start gap-2 mb-1.5 w-full flex-wrap">
-                            <Link href={`/user/${comment.user.id}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity mt-0.5">
+                            <Link prefetch={false} href={`/user/${comment.user.id}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity mt-0.5">
                               {comment.user.image ? <img src={comment.user.image} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" /> : <UserCircle size={16} className="dark:text-zinc-500 text-zinc-400 flex-shrink-0" />}
                             </Link>
                             
                             <div className="flex items-center flex-wrap gap-1.5 flex-1 min-w-0">
-                              <Link href={`/user/${comment.user.id}`} className="font-bold text-xs sm:text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1">
+                              <Link prefetch={false} href={`/user/${comment.user.id}`} className="font-bold text-xs sm:text-sm dark:text-zinc-300 text-zinc-700 hover:text-red-500 transition-colors flex items-center gap-1">
                                 <span className="break-words line-clamp-1">{comment.user.name || "Anonymous"}</span>
                                 <span className="text-[10px] flex-shrink-0" title={`Level ${comment.user.level || 1}`}>{cBadge.icon}</span>
                               </Link>

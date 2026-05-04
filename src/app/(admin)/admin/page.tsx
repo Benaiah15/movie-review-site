@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
       {/* Stats Widgets - NOW CLICKABLE! */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         
-        <Link href="/admin/movies" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-red-500 dark:hover:border-red-500 relative overflow-hidden block">
+        <Link prefetch={false} href="/admin/movies" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-red-500 dark:hover:border-red-500 relative overflow-hidden block">
           <div className="flex items-center gap-4 relative z-10">
             <div className="p-3 bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500 rounded-lg transition-colors flex-shrink-0 group-hover:scale-110 duration-300">
               <Film size={24} />
@@ -38,7 +38,7 @@ export default async function AdminDashboardPage() {
           <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0" />
         </Link>
 
-        <Link href="/admin/users" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-blue-500 dark:hover:border-blue-500 relative overflow-hidden block">
+        <Link prefetch={false} href="/admin/users" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-blue-500 dark:hover:border-blue-500 relative overflow-hidden block">
           <div className="flex items-center gap-4 relative z-10">
             <div className="p-3 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 rounded-lg transition-colors flex-shrink-0 group-hover:scale-110 duration-300">
               <Users size={24} />
@@ -51,7 +51,7 @@ export default async function AdminDashboardPage() {
           <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0" />
         </Link>
 
-        <Link href="/admin/reviews" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 relative overflow-hidden block sm:col-span-2 md:col-span-1">
+        <Link prefetch={false} href="/admin/reviews" className="group bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-6 rounded-xl shadow-sm transition-all hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 relative overflow-hidden block sm:col-span-2 md:col-span-1">
           <div className="flex items-center gap-4 relative z-10">
             <div className="p-3 bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 rounded-lg transition-colors flex-shrink-0 group-hover:scale-110 duration-300">
               <Star size={24} />

@@ -17,13 +17,13 @@ export default function SidebarLinks() {
 
   return (
     <>
-      <Link href="/admin" className={getLinkStyle('/admin')}>
+      <Link prefetch={false} href="/admin" className={getLinkStyle('/admin')}>
         <LayoutDashboard size={20} /> Dashboard
       </Link>
-      <Link href="/admin/movies" className={getLinkStyle('/admin/movies')}>
+      <Link prefetch={false} href="/admin/movies" className={getLinkStyle('/admin/movies')}>
         <Film size={20} /> Manage Movies
       </Link>
-      <Link href="/admin/settings" className={getLinkStyle('/admin/settings')}>
+      <Link prefetch={false} href="/admin/settings" className={getLinkStyle('/admin/settings')}>
         <Settings size={20} /> Settings
       </Link>
     </>

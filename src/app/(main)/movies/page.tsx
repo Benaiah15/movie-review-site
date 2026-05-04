@@ -153,13 +153,13 @@ export default async function MoviesPage({ searchParams }: { searchParams: Promi
           <div className="text-center py-32 dark:bg-zinc-900/30 bg-white rounded-2xl border dark:border-zinc-800/50 border-gray-300 border-dashed transition-colors">
             <Search size={48} className="mx-auto dark:text-zinc-700 text-zinc-400 mb-4" />
             <p className="dark:text-zinc-500 text-zinc-500 text-lg mb-2 font-medium">No movies found matching your filters.</p>
-            <Link href="/movies" className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-bold transition-colors">Clear all filters &rarr;</Link>
+            <Link prefetch={false} href="/movies" className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-bold transition-colors">Clear all filters &rarr;</Link>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-10 md:gap-x-6">
               {movies.map((movie: any) => (
-                <Link href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-3">
+                <Link prefetch={false} href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-3">
                   <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-100 border dark:border-zinc-800 border-gray-200 shadow-lg transition-all duration-300 group-hover:-translate-y-2 dark:group-hover:shadow-[0_10px_30px_rgba(220,38,38,0.25)] group-hover:shadow-[0_10px_30px_rgba(220,38,38,0.15)] dark:group-hover:border-zinc-600 group-hover:border-gray-400">
                     {movie.poster_path ? (
                       <Image src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 20vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />

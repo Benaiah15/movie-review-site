@@ -152,7 +152,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                 <MessageSquare size={36} className="dark:text-zinc-500 text-zinc-400" />
               </div>
               <h2 className="text-2xl font-bold dark:text-white text-zinc-900 mb-3 transition-colors">No activity found</h2>
-              <Link href="/movies" className="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all mt-4">Explore Movies</Link>
+              <Link prefetch={false} href="/movies" className="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all mt-4">Explore Movies</Link>
             </div>
           ) : (
             <div className="space-y-6 md:space-y-8">
@@ -161,7 +161,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                 return (
                   <div key={review.id} className="dark:bg-zinc-900/60 bg-white border dark:border-zinc-800/80 border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center justify-between p-4 md:p-5">
-                      <Link href={`/user/${review.user.id}`} className="flex items-center gap-3 group">
+                      <Link prefetch={false} href={`/user/${review.user.id}`} className="flex items-center gap-3 group">
                         {review.user.image ? (
                           <img src={review.user.image} alt="User" className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover border-2 border-transparent group-hover:border-red-500 transition-colors" />
                         ) : (
@@ -177,7 +177,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                         <span className="text-amber-600 dark:text-amber-500 font-black text-xs md:text-sm leading-none">{review.rating}<span className="text-[10px] opacity-60">/10</span></span>
                       </div>
                     </div>
-                    <Link href={`/movie/${review.movie.id}`} className="block relative w-full h-40 md:h-64 dark:bg-zinc-950 bg-gray-200 overflow-hidden group">
+                    <Link prefetch={false} href={`/movie/${review.movie.id}`} className="block relative w-full h-40 md:h-64 dark:bg-zinc-950 bg-gray-200 overflow-hidden group">
                       {review.movie.backdropPath ? <Image src={`https://image.tmdb.org/t/p/w1280${review.movie.backdropPath}`} alt="Backdrop" fill className="object-cover opacity-60 dark:opacity-40 group-hover:scale-105 transition-all duration-700" /> : <div className="absolute inset-0 flex items-center justify-center dark:text-zinc-800 text-gray-300"><Film size={48} /></div>}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent"></div>
                       <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-end gap-4 md:gap-6">
@@ -200,7 +200,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 pt-8">
                   {currentPage > 1 ? (
-                    <Link href={`/feed?filter=${currentFilter}&page=${currentPage - 1}`} className="p-2 rounded-xl dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 transition-colors group">
+                    <Link prefetch={false} href={`/feed?filter=${currentFilter}&page=${currentPage - 1}`} className="p-2 rounded-xl dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 transition-colors group">
                       <ChevronLeft size={20} className="dark:text-zinc-400 text-zinc-600 group-hover:text-red-500" />
                     </Link>
                   ) : <div className="p-2 rounded-xl opacity-30 cursor-not-allowed"><ChevronLeft size={20} /></div>}
@@ -223,7 +223,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                   </div>
 
                   {currentPage < totalPages ? (
-                    <Link href={`/feed?filter=${currentFilter}&page=${currentPage + 1}`} className="p-2 rounded-xl dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 transition-colors group">
+                    <Link prefetch={false} href={`/feed?filter=${currentFilter}&page=${currentPage + 1}`} className="p-2 rounded-xl dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 hover:border-red-500 dark:hover:border-red-500 transition-colors group">
                       <ChevronRight size={20} className="dark:text-zinc-400 text-zinc-600 group-hover:text-red-500" />
                     </Link>
                   ) : <div className="p-2 rounded-xl opacity-30 cursor-not-allowed"><ChevronRight size={20} /></div>}

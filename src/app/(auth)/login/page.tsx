@@ -50,7 +50,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center dark:bg-zinc-950 bg-gray-50 p-4 transition-colors duration-300">
       <div className="w-full max-w-md dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-gray-200 rounded-2xl p-8 shadow-xl transition-colors duration-300">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-black tracking-tighter dark:text-white text-zinc-900 transition-colors">
+          <Link prefetch={false} href="/" className="text-3xl font-black tracking-tighter dark:text-white text-zinc-900 transition-colors">
             MOVIE<span className="text-red-600">SPACE</span>
           </Link>
           <h2 className="text-xl font-semibold dark:text-white text-zinc-900 mt-4 transition-colors">Welcome back</h2>
@@ -135,7 +135,7 @@ export default function LoginPage() {
         </button>
 
         <p className="mt-8 text-center text-sm dark:text-zinc-400 text-zinc-600 transition-colors">
-          Don't have an account? <Link href="/register" className="font-semibold text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400">Register here</Link>
+          Don't have an account? <Link prefetch={false} href="/register" className="font-semibold text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400">Register here</Link>
         </p>
       </div>
     </div>

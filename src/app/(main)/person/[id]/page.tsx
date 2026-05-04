@@ -143,7 +143,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
                 {knownFor.map((movie: any) => (
-                  <Link href={`/movie/${movie.id}`} key={`${movie.id}-${movie.character}`} className="group flex flex-col gap-3">
+                  <Link prefetch={false} href={`/movie/${movie.id}`} key={`${movie.id}-${movie.character}`} className="group flex flex-col gap-3">
                     <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-lg transition-all duration-300 group-hover:-translate-y-2 dark:group-hover:shadow-[0_10px_30px_rgba(220,38,38,0.25)] group-hover:shadow-[0_10px_30px_rgba(220,38,38,0.15)] dark:group-hover:border-zinc-600 group-hover:border-zinc-400">
                       <Image 
                         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 

@@ -93,7 +93,7 @@ export default async function HomePage() {
               {boxOffice.map((movie: any, index: number) => {
                 const estRevenue = (movie.popularity / 10).toFixed(1);
                 return (
-                  <Link href={`/movie/${movie.id}`} key={movie.id} className="relative group flex items-center gap-4 dark:bg-zinc-950 bg-gray-50 p-4 rounded-2xl border dark:border-zinc-800/80 border-gray-200 hover:border-red-500/50 transition-colors shadow-sm overflow-hidden">
+                  <Link prefetch={false} href={`/movie/${movie.id}`} key={movie.id} className="relative group flex items-center gap-4 dark:bg-zinc-950 bg-gray-50 p-4 rounded-2xl border dark:border-zinc-800/80 border-gray-200 hover:border-red-500/50 transition-colors shadow-sm overflow-hidden">
                     <span className="absolute -right-4 -bottom-6 text-8xl font-black dark:text-zinc-800/50 text-gray-200/50 group-hover:text-red-500/10 transition-colors z-0">
                       {index + 1}
                     </span>
@@ -139,7 +139,7 @@ export default async function HomePage() {
               { title: "Laughter", id: "35", img: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?q=80&w=500&auto=format&fit=crop" },
               { title: "Other Worlds", id: "878", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=500&auto=format&fit=crop" }
             ].map((genre) => (
-              <Link href={`/movies?genre=${genre.id}`} key={genre.title} className="group relative aspect-[16/10] rounded-2xl overflow-hidden shadow-md dark:border-zinc-800 border-gray-200 border">
+              <Link prefetch={false} href={`/movies?genre=${genre.id}`} key={genre.title} className="group relative aspect-[16/10] rounded-2xl overflow-hidden shadow-md dark:border-zinc-800 border-gray-200 border">
                 <Image src={genre.img} alt={genre.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 dark:opacity-60" />
                 <div className="absolute inset-0 bg-gradient-to-t dark:from-zinc-950/90 from-zinc-900/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 text-white font-black tracking-wider text-lg md:text-xl group-hover:text-red-400 transition-colors">
@@ -167,7 +167,7 @@ export default async function HomePage() {
             
             <div className="flex gap-6 overflow-x-auto pb-6 px-1 -mx-1 snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {popularActors.map((person: any) => (
-                <Link href={`/person/${person.id}`} key={person.id} className="flex flex-col items-center gap-3 snap-start min-w-[110px] group">
+                <Link prefetch={false} href={`/person/${person.id}`} key={person.id} className="flex flex-col items-center gap-3 snap-start min-w-[110px] group">
                   <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-[3px] dark:border-zinc-800 border-gray-200 group-hover:border-red-600 transition-colors shadow-sm">
                     {person.profile_path ? (
                       <Image src={`https://image.tmdb.org/t/p/w300${person.profile_path}`} alt={person.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -194,7 +194,7 @@ export default async function HomePage() {
                 Latest Updates
               </h2>
             </div>
-            <Link href="/news" className="text-sm font-semibold text-red-500 hover:text-red-400 transition-colors hidden sm:block flex-shrink-0">
+            <Link prefetch={false} href="/news" className="text-sm font-semibold text-red-500 hover:text-red-400 transition-colors hidden sm:block flex-shrink-0">
               View All News &rarr;
             </Link>
           </div>
@@ -234,7 +234,7 @@ export default async function HomePage() {
               ))}
             </div>
           )}
-          <Link href="/news" className="mt-6 text-sm font-semibold text-red-500 hover:text-red-400 transition-colors block text-center sm:hidden w-full">
+          <Link prefetch={false} href="/news" className="mt-6 text-sm font-semibold text-red-500 hover:text-red-400 transition-colors block text-center sm:hidden w-full">
             View All News &rarr;
           </Link>
         </div>
@@ -245,7 +245,7 @@ export default async function HomePage() {
       {!session && (
         <div className="max-w-5xl mx-auto px-6 mt-32 text-center dark:bg-gradient-to-t bg-gradient-to-t dark:from-red-950/20 from-red-50 to-transparent border-t dark:border-red-900/30 border-red-200 pt-20 rounded-t-[3rem] transition-colors duration-300">
           <h2 className="text-4xl md:text-5xl font-black dark:text-white text-zinc-900 mb-6 tracking-tight transition-colors">Ready to start your diary?</h2>
-          <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white font-black rounded-xl hover:bg-red-700 transition-all hover:scale-105 shadow-[0_0_40px_rgba(220,38,38,0.3)]">
+          <Link prefetch={false} href="/register" className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white font-black rounded-xl hover:bg-red-700 transition-all hover:scale-105 shadow-[0_0_40px_rgba(220,38,38,0.3)]">
             Join MovieSpace Free <ChevronRight size={20} />
           </Link>
         </div>
@@ -266,7 +266,7 @@ function MovieRow({ title, subtitle, icon, movies }: { title: string, subtitle?:
           </h2>
           {subtitle && <p className="dark:text-zinc-400 text-zinc-600 text-sm font-medium transition-colors">{subtitle}</p>}
         </div>
-        <Link href="/movies" className="text-sm font-bold text-zinc-500 dark:hover:text-white hover:text-zinc-900 transition-colors hidden sm:flex items-center gap-1">
+        <Link prefetch={false} href="/movies" className="text-sm font-bold text-zinc-500 dark:hover:text-white hover:text-zinc-900 transition-colors hidden sm:flex items-center gap-1">
           See All <ChevronRight size={16} />
         </Link>
       </div>
@@ -278,7 +278,7 @@ function MovieRow({ title, subtitle, icon, movies }: { title: string, subtitle?:
           const year = (movie.release_date || movie.releaseDate || "").split("-")[0];
 
           return (
-            <Link href={`/movie/${movie.id || movie.tmdbId}`} key={movie.id} className="w-[140px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-3">
+            <Link prefetch={false} href={`/movie/${movie.id || movie.tmdbId}`} key={movie.id} className="w-[140px] md:w-[160px] flex-shrink-0 snap-start group flex flex-col gap-3">
               <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-sm transition-all duration-300 group-hover:-translate-y-2 dark:group-hover:shadow-[0_15px_30px_rgba(220,38,38,0.25)] group-hover:shadow-[0_15px_30px_rgba(220,38,38,0.15)] dark:group-hover:border-zinc-600 group-hover:border-gray-400">
                 {poster ? (
                   <Image src={`https://image.tmdb.org/t/p/w500${poster}`} alt={movie.title} fill sizes="(max-width: 640px) 140px, 160px" className="object-cover transition-transform duration-500 group-hover:scale-105" />

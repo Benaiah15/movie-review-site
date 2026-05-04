@@ -109,11 +109,11 @@ export default async function PublicProfilePage({ params, searchParams }: { para
           <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Followers ({user.followers.length})</h3>
-              <Link href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
+              <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
             <div className="max-h-96 overflow-y-auto space-y-4">
               {user.followers.map(f => (
-                <Link href={`/user/${f.follower.id}`} key={f.follower.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
+                <Link prefetch={false} href={`/user/${f.follower.id}`} key={f.follower.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
                   {f.follower.image ? <img src={f.follower.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.follower.name?.charAt(0)}</div>}
                   <div>
                     <p className="font-bold dark:text-white text-zinc-900 text-sm flex items-center gap-1">{f.follower.name} <span className="text-xs">{getCinephileBadge(f.follower.level).icon}</span></p>
@@ -131,11 +131,11 @@ export default async function PublicProfilePage({ params, searchParams }: { para
           <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Following ({user.following.length})</h3>
-              <Link href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
+              <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
             <div className="max-h-96 overflow-y-auto space-y-4">
               {user.following.map(f => (
-                <Link href={`/user/${f.following.id}`} key={f.following.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
+                <Link prefetch={false} href={`/user/${f.following.id}`} key={f.following.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
                   {f.following.image ? <img src={f.following.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.following.name?.charAt(0)}</div>}
                   <div>
                     <p className="font-bold dark:text-white text-zinc-900 text-sm flex items-center gap-1">{f.following.name} <span className="text-xs">{getCinephileBadge(f.following.level).icon}</span></p>
@@ -181,12 +181,12 @@ export default async function PublicProfilePage({ params, searchParams }: { para
               </div>
 
              <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
-               <Link href={`?tab=${currentTab}&page=${currentPage}&modal=followers`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+               <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=followers`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.followers.length}</span>
                  <span className="text-[10px] uppercase tracking-wider font-semibold">Followers</span>
                </Link>
                <div className="w-px h-8 dark:bg-zinc-800 bg-gray-200 transition-colors"></div>
-               <Link href={`?tab=${currentTab}&page=${currentPage}&modal=following`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+               <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=following`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.following.length}</span>
                  <span className="text-[10px] uppercase tracking-wider font-semibold">Following</span>
                </Link>
@@ -195,16 +195,16 @@ export default async function PublicProfilePage({ params, searchParams }: { para
 
           <nav className="flex flex-col gap-2 w-full">
             {/* Added &page=1 so switching tabs always resets the pagination cleanly! */}
-            <Link href="?tab=activity&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "activity" ? "dark:bg-red-600/10 bg-red-50 dark:text-red-500 text-red-600 border dark:border-red-500/20 border-red-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            <Link prefetch={false} href="?tab=activity&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "activity" ? "dark:bg-red-600/10 bg-red-50 dark:text-red-500 text-red-600 border dark:border-red-500/20 border-red-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <LayoutDashboard size={18} /> {user.name?.split(" ")[0]}'s Activity
             </Link>
 
-            <Link href="?tab=collections&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "collections" ? "dark:bg-purple-500/10 bg-purple-50 dark:text-purple-500 text-purple-600 border dark:border-purple-500/20 border-purple-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            <Link prefetch={false} href="?tab=collections&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "collections" ? "dark:bg-purple-500/10 bg-purple-50 dark:text-purple-500 text-purple-600 border dark:border-purple-500/20 border-purple-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <Library size={18} /> Custom Lists
               <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.collections.length}</span>
             </Link>
 
-            <Link href="?tab=watchlist&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "watchlist" ? "dark:bg-amber-500/10 bg-amber-50 dark:text-amber-500 text-amber-600 border dark:border-amber-500/20 border-amber-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
+            <Link prefetch={false} href="?tab=watchlist&page=1" scroll={false} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-colors ${currentTab === "watchlist" ? "dark:bg-amber-500/10 bg-amber-50 dark:text-amber-500 text-amber-600 border dark:border-amber-500/20 border-amber-200 shadow-sm" : "dark:text-zinc-400 text-zinc-500 dark:hover:bg-zinc-900/80 hover:bg-gray-100 dark:hover:text-white hover:text-zinc-900"}`}>
               <Bookmark size={18} /> Watchlist 
               <span className="ml-auto text-xs dark:bg-zinc-800 bg-gray-200 dark:text-zinc-300 text-zinc-700 py-0.5 px-2 rounded-full transition-colors">{user.favoriteMovies.length}</span>
             </Link>
@@ -232,7 +232,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                       return (
                         <div key={index} className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900/50 bg-gray-100 border dark:border-zinc-800 border-gray-200 shadow-sm group transition-colors">
                           {movie ? (
-                            <Link href={`/movie/${movie.id}`} className="block w-full h-full">
+                            <Link prefetch={false} href={`/movie/${movie.id}`} className="block w-full h-full">
                               {movie.posterPath ? (
                                 <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                               ) : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 text-xs font-medium transition-colors">No Poster</div>}
@@ -315,13 +315,13 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                   ) : (
                     currentReviews.map((review) => (
                       <div key={review.id} className="dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-4 md:p-5 flex flex-col sm:flex-row gap-5 dark:hover:border-zinc-700 hover:border-gray-300 transition-colors w-full max-w-full overflow-hidden">
-                        <Link href={`/movie/${review.movie.id}`} className="w-20 sm:w-24 flex-shrink-0 relative aspect-[2/3] rounded-lg overflow-hidden border dark:border-zinc-800 border-gray-300 hidden sm:block transition-colors">
+                        <Link prefetch={false} href={`/movie/${review.movie.id}`} className="w-20 sm:w-24 flex-shrink-0 relative aspect-[2/3] rounded-lg overflow-hidden border dark:border-zinc-800 border-gray-300 hidden sm:block transition-colors">
                           {review.movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w200${review.movie.posterPath}`} alt={review.movie.title} fill sizes="100px" className="object-cover hover:scale-105 transition-transform" />}
                         </Link>
                         <div className="flex-1 flex flex-col min-w-0 w-full">
                           <div className="flex items-start justify-between mb-2 gap-2">
                             <div className="min-w-0 flex-1">
-                              <Link href={`/movie/${review.movie.id}`} className="text-lg font-bold dark:text-white text-zinc-900 hover:text-red-500 transition-colors block truncate w-full">{review.movie.title}</Link>
+                              <Link prefetch={false} href={`/movie/${review.movie.id}`} className="text-lg font-bold dark:text-white text-zinc-900 hover:text-red-500 transition-colors block truncate w-full">{review.movie.title}</Link>
                               <div className="flex items-center gap-2 mt-1 text-xs dark:text-zinc-500 text-zinc-500 transition-colors">
                                 <Clock size={12} className="flex-shrink-0" />
                                 <span className="truncate">{new Date(review.createdAt).toLocaleDateString()}</span>
@@ -372,7 +372,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                         {[0, 1, 2, 3].map(i => {
                           const movie = collection.movies[i];
                           return movie ? (
-                            <Link href={`/movie/${movie.id}`} key={i} className="aspect-[2/3] relative rounded-md overflow-hidden bg-zinc-800 border dark:border-zinc-800 border-gray-300 hover:border-purple-500 transition-all">
+                            <Link prefetch={false} href={`/movie/${movie.id}`} key={i} className="aspect-[2/3] relative rounded-md overflow-hidden bg-zinc-800 border dark:border-zinc-800 border-gray-300 hover:border-purple-500 transition-all">
                               {movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w200${movie.posterPath}`} alt={movie.title} fill className="object-cover" />}
                             </Link>
                           ) : (
@@ -403,7 +403,7 @@ export default async function PublicProfilePage({ params, searchParams }: { para
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 w-full">
                   {currentWatchlist.map((movie) => (
-                    <Link href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-2 w-full overflow-hidden">
+                    <Link prefetch={false} href={`/movie/${movie.id}`} key={movie.id} className="group flex flex-col gap-2 w-full overflow-hidden">
                       <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden dark:bg-zinc-900 bg-gray-200 border dark:border-zinc-800 border-gray-300 shadow-lg group-hover:border-amber-500/50 transition-all">
                         {movie.posterPath ? <Image src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`} alt={movie.title} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="flex items-center justify-center w-full h-full dark:text-zinc-700 text-zinc-400 transition-colors">N/A</div>}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

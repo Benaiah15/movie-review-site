@@ -117,7 +117,7 @@ useEffect(() => {
         
         {/* LOGO & DESKTOP LINKS */}
         <div className="flex items-center gap-10">
-          <Link href="/" onClick={closeAllMenus} className="flex items-center gap-2 sm:gap-3 group">
+          <Link prefetch={false} href="/" onClick={closeAllMenus} className="flex items-center gap-2 sm:gap-3 group">
             <div className="relative w-8 h-8 md:w-9 md:h-9 flex-shrink-0">
               <Image 
                 src="/logo.png" 
@@ -133,17 +133,17 @@ useEffect(() => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/" className={cn("flex items-center gap-2 transition-colors", pathname === "/" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
+            <Link prefetch={false} href="/" className={cn("flex items-center gap-2 transition-colors", pathname === "/" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
               <Home size={16} /> Home
             </Link>
-            <Link href="/movies" className={cn("flex items-center gap-2 transition-colors", pathname === "/movies" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
+            <Link prefetch={false} href="/movies" className={cn("flex items-center gap-2 transition-colors", pathname === "/movies" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
               <Film size={16} /> Movies
             </Link>
-            <Link href="/news" className={cn("flex items-center gap-2 transition-colors", pathname === "/news" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
+            <Link prefetch={false} href="/news" className={cn("flex items-center gap-2 transition-colors", pathname === "/news" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
               <Newspaper size={16} /> News
             </Link>
             {user && (
-              <Link href="/feed" className={cn("flex items-center gap-2 transition-colors", pathname === "/feed" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
+              <Link prefetch={false} href="/feed" className={cn("flex items-center gap-2 transition-colors", pathname === "/feed" ? "dark:text-white text-zinc-900 font-bold" : "dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900")}>
                 <Users size={16} /> Feed
               </Link>
             )}
@@ -234,12 +234,12 @@ useEffect(() => {
                 
                 {/* Desktop Admin Check */}
                 {(user as any).role === "ADMIN" && (
-                  <Link href="/admin" className="text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors flex items-center gap-2">
+                  <Link prefetch={false} href="/admin" className="text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors flex items-center gap-2">
                     <LayoutDashboard size={16} /> Admin
                   </Link>
                 )}
 
-               <Link href="/profile" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors"> 
+               <Link prefetch={false} href="/profile" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors"> 
                   <span className="text-sm font-medium dark:text-zinc-400 text-zinc-600 dark:group-hover:text-white group-hover:text-zinc-900 transition-colors">
                     Hi, {user.name?.split(" ")[0] || "Cinephile"}
                   </span>
@@ -259,8 +259,8 @@ useEffect(() => {
               </div>
             ) : (
               <div className="flex items-center gap-4 text-sm font-medium">
-                <Link href="/login" className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 transition-colors">Sign In</Link>
-                <Link href="/register" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm">Register</Link>
+                <Link prefetch={false} href="/login" className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 transition-colors">Sign In</Link>
+                <Link prefetch={false} href="/register" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm">Register</Link>
               </div>
             )}
           </div>
@@ -282,32 +282,32 @@ useEffect(() => {
             isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
           }`}
         >
-          <Link href="/" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+          <Link prefetch={false} href="/" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Home size={18} /> Home
           </Link>
-          <Link href="/movies" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+          <Link prefetch={false} href="/movies" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Film size={18} /> Movies
           </Link>
-          <Link href="/news" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+          <Link prefetch={false} href="/news" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
             <Newspaper size={18} /> News
           </Link>
           
           {user ? (
             <>
-              <Link href="/feed" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+              <Link prefetch={false} href="/feed" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                 <Users size={18} /> Feed
               </Link>
               
               {/* Mobile Admin Check */}
               {(user as any).role === "ADMIN" && (
-                <Link href="/admin" onClick={closeAllMenus} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
+                <Link prefetch={false} href="/admin" onClick={closeAllMenus} className="flex items-center gap-3 text-amber-500 py-3 font-medium transition-colors">
                   <LayoutDashboard size={18} /> Admin Dashboard
                 </Link>
               )}
               
               <div className="border-t dark:border-zinc-800 border-gray-200 mt-2 pt-2 transition-colors">
                 {/* FIX: Mobile "My Profile" link corrected to /user */}
-                <Link href="/profile" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+                <Link prefetch={false} href="/profile" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                   {user.image ? (
                      <img src={user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover border dark:border-zinc-800 border-gray-200" />
                   ) : (
@@ -322,8 +322,8 @@ useEffect(() => {
             </>
           ) : (
             <div className="flex flex-col gap-3 pt-4 mt-2 border-t dark:border-zinc-800 border-gray-200 transition-colors">
-              <Link href="/login" onClick={closeAllMenus} className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-2.5 text-center font-bold border dark:border-zinc-800 border-gray-300 rounded-lg transition-colors">Sign In</Link>
-              <Link href="/register" onClick={closeAllMenus} className="bg-red-600 text-white py-2.5 rounded-lg text-center font-bold hover:bg-red-700 transition-colors shadow-sm">Register</Link>
+              <Link prefetch={false} href="/login" onClick={closeAllMenus} className="dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-2.5 text-center font-bold border dark:border-zinc-800 border-gray-300 rounded-lg transition-colors">Sign In</Link>
+              <Link prefetch={false} href="/register" onClick={closeAllMenus} className="bg-red-600 text-white py-2.5 rounded-lg text-center font-bold hover:bg-red-700 transition-colors shadow-sm">Register</Link>
             </div>
           )}
         </div>

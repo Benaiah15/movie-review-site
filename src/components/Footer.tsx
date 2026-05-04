@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
         
         {/* BRAND WITH CUSTOM LOGO & MATCHING GLOW */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link prefetch={false} href="/" className="flex items-center gap-3 group">
           <div className="relative w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
             <Image 
               src="/logo.png" 
@@ -34,10 +34,10 @@ export default function Footer() {
         
         {/* INTERNAL PAGE LINKS: These will point to routes you build later */}
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/about" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">About Us</Link>
-          <Link href="/help" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Help Center</Link>
-          <Link href="/privacy" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Terms of Service</Link>
+          <Link prefetch={false} href="/about" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">About Us</Link>
+          <Link prefetch={false} href="/help" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Help Center</Link>
+          <Link prefetch={false} href="/privacy" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Privacy Policy</Link>
+          <Link prefetch={false} href="/terms" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Terms of Service</Link>
         </div>
         
         <p className="text-center md:text-left">© {new Date().getFullYear()} MovieSpace. All rights reserved.</p>
