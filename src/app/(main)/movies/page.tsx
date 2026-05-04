@@ -3,7 +3,7 @@ import Image from "next/image";
 import Pagination from "@/components/Pagination";
 import { Star, PlayCircle, Search, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
-export const revalidate = 60; // Updates the cache every 60 seconds
+export const revalidate = 3600; // Updates the cache every 3600 seconds
 export const dynamic = "force-dynamic";
 
 // Hardcoded TMDB genre map for fast filtering

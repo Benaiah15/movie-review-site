@@ -6,7 +6,7 @@ import HeroSlideshow from "@/components/HeroSlideshow";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export const revalidate = 60; // Updates the cache every 60 seconds
+export const revalidate = 3600; // Updates the cache every 3600 seconds
 
 async function getTMDB(endpoint: string) {
 

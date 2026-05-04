@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 async function getTMDBDetails(tmdbId: number | null) {
   if (!tmdbId || isNaN(tmdbId)) return null;

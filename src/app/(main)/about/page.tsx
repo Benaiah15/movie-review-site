@@ -4,7 +4,7 @@ export const metadata = {
   title: "About Us | MovieSpace",
 };
 
-export const revalidate = 60; // Updates the cache every 60 seconds
+export const revalidate = 3600; // Updates the cache every 3600 seconds
 export default function AboutPage() {
   return (
     <div className="max-w-3xl mx-auto px-6 py-20 min-h-[65vh] animate-in fade-in duration-500">

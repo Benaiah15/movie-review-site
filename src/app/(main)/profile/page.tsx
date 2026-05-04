@@ -9,7 +9,7 @@ import AvatarUpload from "@/app/(main)/settings/AvatarUpload";
 import SettingsForm from "@/app/(main)/settings/SettingsForm";
 import { getCinephileBadge } from "@/lib/gamification";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ tab?: string, modal?: string, page?: string }> }) {
