@@ -6,7 +6,8 @@ import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
 import { Analytics } from '@vercel/analytics/react';
 import SessionGuardian from "@/components/SessionGuardian";
-import AppEnhancer from "@/components/AppEnhancer"; // <-- 1. Imported the new Enhancer
+import AppEnhancer from "@/components/AppEnhancer";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,14 +65,21 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Navbar />
-              {/* 2. Wrapped children in AppEnhancer so pages animate under the navbar */}
               <AppEnhancer>
                 {children}
               </AppEnhancer>
             </ThemeProvider>
           </SessionGuardian>
         </AuthProvider>
-      <Analytics />
+        
+        {/* Vercel Analytics */}
+        <Analytics />
+        
+        {/* 2. Safely pulling the GA ID from your environment variables! */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
+        
       </body>
     </html>
   );
