@@ -42,7 +42,7 @@ async function main() {
 
   // 1. SEED USERS
   console.log("👤 Creating a community of 12 active users...");
-  const createdUsers = [];
+  const createdUsers: any[] = [];
   for (const user of DUMMY_USERS) {
     const dbUser = await db.user.upsert({
       where: { email: user.email },
