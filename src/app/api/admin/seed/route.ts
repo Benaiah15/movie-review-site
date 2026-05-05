@@ -94,7 +94,7 @@ export async function GET(req: Request) {
     }
 
     // 4. INJECT MOVIES, REVIEWS, & LIKES
-    const dbMovies = []; // Keep track of the actual database movies
+    const dbMovies: any[] = []; // Keep track of the actual database movies
     for (const tmdbMovie of allMovies) {
       const movie = await db.movie.upsert({
         where: { tmdbId: tmdbMovie.id },
