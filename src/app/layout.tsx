@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description: "Your Cinematic Universe",
   manifest: "/manifest.json",
   verification: {
-    google: "yft5cshDJWPaw8mfaVg9tzC9tFbXAYVaQn9hUGh6JqI", 
+    google: "Jxl3qYp4aWRyxY6tTH63wMaT-IzcTLyG9DALEo_M5PI", 
   },
 };
 
@@ -84,3 +84,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+
