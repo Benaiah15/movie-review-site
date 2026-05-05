@@ -8,7 +8,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const revalidate = 3600; // Updates the cache every 3600 seconds
 
-async function getTMDB(endpoint: string) {
 
 async function getTMDB(endpoint: string) {
   try {
