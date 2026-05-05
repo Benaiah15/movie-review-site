@@ -21,6 +21,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/'],
       }
     ],
-    sitemap: 'https://themoviespace.vercel.app/sitemap.xml',
+    sitemap: 'https://moviespace.onrender.com/sitemap.xml',
   }
 }

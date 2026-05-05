@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import db from "@/lib/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://themoviespace.vercel.app";
+  const baseUrl = "https://moviespace.onrender.com";
 
   // 1. Static Routes
   const routes = ['', '/movies', '/news', '/login', '/register'].map((route) => ({
