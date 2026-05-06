@@ -4,7 +4,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        // Friendly bots (like Google) are allowed, but must wait 10 seconds between clicks
+        // Friendly bots (like Google) are allowed everywhere except private routes
         userAgent: '*',
         allow: '/',
         disallow: [
@@ -13,7 +13,6 @@ export default function robots(): MetadataRoute.Robots {
           '/login', 
           '/register'
         ],
-        crawlDelay: 10, 
       },
       {
         // Aggressive SEO scrapers and AI bots get completely blocked
