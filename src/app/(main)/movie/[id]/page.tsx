@@ -6,9 +6,10 @@ import { Star, Calendar, Clock, Film, Users, UserCircle, AlertCircle, Play, Moni
 import ReviewSection from "@/components/ReviewSection";
 import WatchlistButton from "@/components/WatchlistButton";
 import TopFourButton from "@/components/TopFourButton";
+import CollectionModal from "@/components/CollectionModal";
+import WhereToWatch from "@/components/WhereToWatch"; // <-- Imported new component
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import CollectionModal from "@/components/CollectionModal";
 import type { Metadata } from "next";
 
 // This tells Next.js to fetch the movie data on the server BEFORE sending it to Google
@@ -70,6 +71,20 @@ async function getTMDBDetails(tmdbId: number | null) {
     return res.json();
   } catch (error) {
     return null; 
+  }
+}
+
+// <-- Added TMDB Watch Providers Fetch Function -->
+async function getWatchProviders(movieId: string | number) {
+  try {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${process.env.TMDB_API_KEY}`
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.results?.US || null; 
+  } catch (error) {
+    return null;
   }
 }
 
@@ -168,6 +183,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   }
 
   const tmdbData = await getTMDBDetails(movie.tmdbId || parseInt(rawId));
+  const providers = await getWatchProviders(movie.tmdbId || rawId); // <-- Fetching the providers
   
   const director = tmdbData?.credits?.crew?.find((p: any) => p.job === "Director")?.name;
   const writers = tmdbData?.credits?.crew?.filter((p: any) => p.department === "Writing").slice(0, 2).map((w: any) => w.name).join(", ");
@@ -293,6 +309,11 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* <-- ADDED MONETIZATION COMPONENT HERE --> */}
+                <div className="w-full max-w-3xl mx-auto md:mx-0">
+                  <WhereToWatch movieTitle={movie.title} providers={providers} />
                 </div>
 
                 {cast.length > 0 && (
