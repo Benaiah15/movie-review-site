@@ -98,13 +98,13 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
       
       {/* ================= SOCIAL MODALS ================= */}
       {modal === "followers" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 mb-10">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Followers ({user.followers.length})</h3>
               <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
-            <div className="max-h-96 overflow-y-auto space-y-4">
+            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2">
               {user.followers.map(f => (
                 <Link prefetch={false} href={`/user/${f.follower.id}`} key={f.follower.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
                   {f.follower.image ? <img src={f.follower.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.follower.name?.charAt(0)}</div>}
@@ -120,13 +120,13 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
       )}
 
       {modal === "following" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 mb-10">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold dark:text-white text-zinc-900">Following ({user.following.length})</h3>
               <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
             </div>
-            <div className="max-h-96 overflow-y-auto space-y-4">
+            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2">
               {user.following.map(f => (
                 <Link prefetch={false} href={`/user/${f.following.id}`} key={f.following.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
                   {f.following.image ? <img src={f.following.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.following.name?.charAt(0)}</div>}
