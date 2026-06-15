@@ -9,7 +9,7 @@
 MovieSpace is a high-performance, full-stack movie discovery and social networking platform. Built to handle massive datasets and dynamic user interactions, the platform allows users to explore global cinema, curate custom watchlists, write reviews, follow other cinephiles, and seamlessly stream or purchase titles.
 
 ## 🚀 Live Demo
-**[Insert your Render URL here, e.g., https://moviespace.onrender.com]**
+**[https://moviespace.onrender.com/]**
 
 ## ✨ Core Features
 
@@ -51,5 +51,5 @@ To run MovieSpace locally, follow these steps:
 
 1. **Clone the repository:**
 ```bash
-   git clone [https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git](https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git)
+   git clone [https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git](https://github.com/Benaiah15/movie-review-site.git)
    cd movie-review-site
