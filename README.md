@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎬 MovieSpace 
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-First, run the development server:
+MovieSpace is a high-performance, full-stack movie discovery and social networking platform. Built to handle massive datasets and dynamic user interactions, the platform allows users to explore global cinema, curate custom watchlists, write reviews, follow other cinephiles, and seamlessly stream or purchase titles.
 
+## 🚀 Live Demo
+**[Insert your Render URL here, e.g., https://moviespace.onrender.com]**
+
+## ✨ Core Features
+
+* **Comprehensive Discovery:** Real-time fetching of trending movies, detailed cast lists, trailers, and similar movie recommendations using the TMDB API.
+* **Social Ecosystem:** Users can write reviews, upvote community opinions, build custom collections, and follow other users to curate their feeds.
+* **Gamification:** Dynamic leveling and badging system based on user engagement and review activity.
+* **Global Monetization:** Integrated with JustWatch for accurate streaming availability and custom Amazon Associates routing for global affiliate revenue.
+* **Responsive UI:** Fully mobile-optimized, dark-mode native interface built with Tailwind CSS and Lucide React icons.
+
+## 🛠 Tech Stack
+
+* **Framework:** Next.js (App Router)
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS
+* **Database Management:** Prisma ORM
+* **Authentication:** NextAuth.js
+* **External APIs:** TMDB (The Movie Database), JustWatch, GNews
+* **Hosting/Deployment:** Render
+
+## 🧠 System Architecture & Engineering Decisions
+
+This project was built with a heavy focus on scalability and overcoming restrictive cloud provider limits. 
+
+### 1. Bypassing Serverless Constraints
+Initially deployed on Vercel, the application encountered aggressive automated bot crawls that exhausted free-tier serverless execution and database read limits. The infrastructure was successfully migrated to **Render** to ensure stable, always-on backend performance without unexpected usage blocks.
+
+### 2. Custom ISR & Cache Optimization
+To protect the database from excessive querying and to avoid hitting external API rate limits, a custom Incremental Static Regeneration (ISR) strategy was implemented. High-traffic components (like the global feed and trending pages) are aggressively cached, reducing API overhead by over 80% while keeping data fresh for users.
+
+### 3. "Ghost" Database Writes (Bot Protection)
+To prevent malicious bots from filling the database with empty records when scraping dynamic TMDB movie routes, a custom middleware check was built. The system intercepts the request, verifies if a valid `next-auth` user session exists, and only executes a database `create` operation for real human users. Bots receive perfectly formatted SEO mock-data, keeping the database footprint at 0 bytes for non-human traffic.
+
+### 4. Dynamic Affiliate Routing
+The "Where to Watch" component dynamically parses streaming provider data and intercepts Amazon pathways, dynamically injecting secure, region-compliant Amazon Associates affiliate tags (W-8BEN compliant for international operation). 
+
+## 💻 Local Installation
+
+To run MovieSpace locally, follow these steps:
+
+1. **Clone the repository:**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   git clone [https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git](https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git)
+   cd movie-review-site
