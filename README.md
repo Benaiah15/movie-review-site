@@ -51,5 +51,5 @@ To run MovieSpace locally, follow these steps:
 
 1. **Clone the repository:**
 ```bash
-   git clone [https://github.com/YOUR_GITHUB_USERNAME/movie-review-site.git](https://github.com/Benaiah15/movie-review-site.git)
+   git clone [https://github.com/Benaiah15/movie-review-site.git](https://github.com/Benaiah15/movie-review-site.git)
    cd movie-review-site
