@@ -239,7 +239,7 @@ useEffect(() => {
                   </Link>
                 )}
 
-               <Link prefetch={false} href="/profile" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors"> 
+               <Link prefetch={false} href="/profile" rel="nofollow" className="flex items-center gap-3 group px-2 py-1 rounded-full dark:hover:bg-zinc-900 hover:bg-gray-100 transition-colors"> 
                   <span className="text-sm font-medium dark:text-zinc-400 text-zinc-600 dark:group-hover:text-white group-hover:text-zinc-900 transition-colors">
                     Hi, {user.name?.split(" ")[0] || "Cinephile"}
                   </span>
@@ -307,7 +307,7 @@ useEffect(() => {
               
               <div className="border-t dark:border-zinc-800 border-gray-200 mt-2 pt-2 transition-colors">
                 {/* FIX: Mobile "My Profile" link corrected to /user */}
-                <Link prefetch={false} href="/profile" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
+                <Link prefetch={false} href="/profile" rel="nofollow" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                   {user.image ? (
                      <img src={user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover border dark:border-zinc-800 border-gray-200" />
                   ) : (

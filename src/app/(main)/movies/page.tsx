@@ -4,7 +4,6 @@ import Pagination from "@/components/Pagination";
 import { Star, PlayCircle, Search, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 export const revalidate = 3600; // Updates the cache every 3600 seconds
-export const dynamic = "force-dynamic";
 
 // Hardcoded TMDB genre map for fast filtering
 const GENRES = [
@@ -41,7 +40,7 @@ async function searchTMDB(query: string, page: number, genre?: string, year?: st
       endpoint = `/movie/popular?page=${page}`;
     }
     
-    const res = await fetch(`https://api.themoviedb.org/3${endpoint}&api_key=${process.env.TMDB_API_KEY}`, { cache: 'no-store' });
+    const res = await fetch(`https://api.themoviedb.org/3${endpoint}&api_key=${process.env.TMDB_API_KEY}`);
     if (!res.ok) return { results: [], total_pages: 1 };
     return res.json();
   } catch (error) {

@@ -66,7 +66,7 @@ async function getTMDBDetails(tmdbId: number | null) {
   if (!tmdbId || isNaN(tmdbId)) return null;
   try {
     const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=credits,videos,similar,watch/providers`;
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url);
     if (!res.ok) return null;
     return res.json();
   } catch (error) {

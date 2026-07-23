@@ -4,14 +4,17 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        // Friendly bots (like Google) are allowed everywhere except private routes
+        // Friendly bots (like Google) are allowed everywhere except private/heavy routes
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/api/', 
-          '/admin/', 
-          '/login', 
-          '/register'
+          '/api/',
+          '/admin/',
+          '/login/',
+          '/register',
+          '/profile/',     // Added to protect DB from bots crawling user profiles
+          '/collection/',  // Added to protect DB from bots crawling collections
+          '/search'        // Added to prevent bots from triggering search queries
         ],
       },
       {
@@ -20,6 +23,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/'],
       }
     ],
-    sitemap: 'https://moviespace.onrender.com/sitemap.xml',
+    // Updated to your new Vercel domain
+    sitemap: 'https://themoviespace.vercel.app/sitemap.xml',
   }
 }

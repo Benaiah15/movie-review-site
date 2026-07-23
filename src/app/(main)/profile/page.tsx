@@ -11,7 +11,6 @@ import { getCinephileBadge } from "@/lib/gamification";
 import ProfileModals from "./ProfileModals";
 
 export const revalidate = 3600;
-export const dynamic = "force-dynamic";
 
 export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ tab?: string, modal?: string, page?: string, collectionId?: string }> }) {
   const session = await getServerSession(authOptions);

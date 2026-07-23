@@ -9,7 +9,6 @@ import { getCinephileBadge } from "@/lib/gamification";
 import FollowButton from "@/components/FollowButton";
 
 export const revalidate = 3600;
-export const dynamic = "force-dynamic";
 
 export default async function PublicProfilePage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ tab?: string, modal?: string, page?: string }> }) {
   const resolvedParams = await params;
