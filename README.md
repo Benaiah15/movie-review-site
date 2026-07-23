@@ -9,7 +9,7 @@
 MovieSpace is a high-performance, full-stack movie discovery and social networking platform. Built to handle massive datasets and dynamic user interactions, the platform allows users to explore global cinema, curate custom watchlists, write reviews, follow other cinephiles, and seamlessly stream or purchase titles.
 
 ## 🚀 Live Demo
-**[https://moviespace.onrender.com/]**
+**[themoviespace.vercel.app]**
 
 ## ✨ Core Features
 
