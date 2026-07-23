@@ -74,12 +74,12 @@ export default function CollectionModal({ movieId }: { movieId: string }) {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           
-          {/* Modal (Bottom Sheet on Mobile, Centered on Desktop) */}
-          <div className="relative w-full md:w-[400px] max-h-[85vh] dark:bg-zinc-950 bg-white md:rounded-2xl rounded-t-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-8 md:slide-in-from-bottom-4 duration-300">
+          {/* Modal (Centered floating card on all devices) */}
+          <div className="relative w-full md:w-[400px] max-h-[75vh] dark:bg-zinc-950 bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
             
             <div className="flex items-center justify-between p-5 border-b dark:border-zinc-800 border-gray-200">
               <h3 className="font-black text-xl dark:text-white text-zinc-900">Save to Collection</h3>

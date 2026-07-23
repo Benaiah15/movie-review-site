@@ -16,7 +16,8 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(5, "10 s"),
 });
 
-export async function middleware(request: NextRequest) {
+// CHANGED: "middleware" is now "proxy"
+export async function proxy(request: NextRequest) {
   // Only apply rate limiting to routes that WRITE data (POST, PUT, PATCH, DELETE)
   // We don't want to limit GET requests (like reading reviews or browsing movies)
   if (request.method !== "GET") {
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Tell Next.js exactly which paths this middleware should run on
+// Tell Next.js exactly which paths this proxy should run on
 export const config = {
   matcher: [
     /*
