@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description: "Your Cinematic Universe",
   manifest: "/manifest.json",
   verification: {
-    google: "tKCUPR8hwwZKiM4W1UWJwCe-haPqcW6ycvtYQYGhYbw", 
+    google: "yft5cshDJWPaw8mfaVg9tzC9tFbXAYVaQn9hUGh6JqI",
   },
 };
 
