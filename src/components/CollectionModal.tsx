@@ -1,16 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { BookmarkPlus, Plus, X, Loader2, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 export default function CollectionModal({ movieId }: { movieId: string }) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [collections, setCollections] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+
+  // 1. Ensure portal only renders on the client to prevent hydration errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 2. Lock the background scroll when the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   // Fetch collections when modal opens
   useEffect(() => {
@@ -73,12 +92,14 @@ export default function CollectionModal({ movieId }: { movieId: string }) {
         <BookmarkPlus size={18} /> Save to List
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+      {/* 3. Teleport the modal to the document body using createPortal */}
+      {isOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
           
-          {/* Modal (Centered floating card on all devices) */}
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          
+          {/* Modal */}
           <div className="relative w-full md:w-[400px] max-h-[75vh] dark:bg-zinc-950 bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
             
             <div className="flex items-center justify-between p-5 border-b dark:border-zinc-800 border-gray-200">
@@ -89,7 +110,6 @@ export default function CollectionModal({ movieId }: { movieId: string }) {
             </div>
 
             <div className="p-5 overflow-y-auto flex-1">
-              {/* Create New Collection Input */}
               <form onSubmit={handleCreateCollection} className="flex gap-2 mb-6">
                 <input 
                   type="text" 
@@ -103,7 +123,6 @@ export default function CollectionModal({ movieId }: { movieId: string }) {
                 </button>
               </form>
 
-              {/* Collections List */}
               {isLoading ? (
                 <div className="flex justify-center py-8"><Loader2 className="animate-spin text-red-500" size={32} /></div>
               ) : collections.length === 0 ? (
@@ -131,7 +150,8 @@ export default function CollectionModal({ movieId }: { movieId: string }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

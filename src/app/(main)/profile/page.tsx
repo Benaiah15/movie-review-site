@@ -4,21 +4,21 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, Camera, PlayCircle, Settings, Users, BarChart3, Pin, X, Library, ChevronLeft, ChevronRight } from "lucide-react"; 
+import { Star, MessageSquare, Award, Clock, LayoutDashboard, Bookmark, PlayCircle, Settings, BarChart3, Pin, Library, ChevronLeft, ChevronRight } from "lucide-react"; 
 import AvatarUpload from "@/app/(main)/settings/AvatarUpload";
 import SettingsForm from "@/app/(main)/settings/SettingsForm";
 import { getCinephileBadge } from "@/lib/gamification";
+import ProfileModals from "./ProfileModals";
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ tab?: string, modal?: string, page?: string }> }) {
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ tab?: string, modal?: string, page?: string, collectionId?: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.id) redirect("/login");
 
   const resolvedParams = await searchParams;
   const currentTab = resolvedParams.tab || "activity";
-  const modal = resolvedParams.modal;
   const currentPage = parseInt(resolvedParams.page || "1");
 
   const user = await db.user.findUnique({
@@ -96,93 +96,51 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
   return (
     <div className="min-h-screen dark:bg-zinc-950 bg-gray-50 pb-20 pt-8 px-4 md:px-8 transition-colors duration-300 overflow-x-hidden relative">
       
-      {/* ================= SOCIAL MODALS ================= */}
-      {modal === "followers" && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 mb-10">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold dark:text-white text-zinc-900">Followers ({user.followers.length})</h3>
-              <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
-            </div>
-            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2">
-              {user.followers.map(f => (
-                <Link prefetch={false} href={`/user/${f.follower.id}`} key={f.follower.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
-                  {f.follower.image ? <img src={f.follower.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.follower.name?.charAt(0)}</div>}
-                  <div>
-                    <p className="font-bold dark:text-white text-zinc-900 text-sm flex items-center gap-1">{f.follower.name} <span className="text-xs">{getCinephileBadge(f.follower.level).icon}</span></p>
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500">Lvl {f.follower.level}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {modal === "following" && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="dark:bg-zinc-900 bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 mb-10">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold dark:text-white text-zinc-900">Following ({user.following.length})</h3>
-              <Link prefetch={false} href={`?tab=${currentTab}`} scroll={false} className="p-2 dark:bg-zinc-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"><X size={16}/></Link>
-            </div>
-            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2">
-              {user.following.map(f => (
-                <Link prefetch={false} href={`/user/${f.following.id}`} key={f.following.id} className="flex items-center gap-3 p-2 rounded-xl dark:hover:bg-zinc-800 hover:bg-gray-50 transition-colors">
-                  {f.following.image ? <img src={f.following.image} className="w-10 h-10 rounded-full object-cover" alt=""/> : <div className="w-10 h-10 rounded-full dark:bg-zinc-800 bg-gray-200 flex items-center justify-center font-bold">{f.following.name?.charAt(0)}</div>}
-                  <div>
-                    <p className="font-bold dark:text-white text-zinc-900 text-sm flex items-center gap-1">{f.following.name} <span className="text-xs">{getCinephileBadge(f.following.level).icon}</span></p>
-                    <p className="text-xs dark:text-zinc-500 text-zinc-500">Lvl {f.following.level}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= CLIENT SIDE MODALS ================= */}
+      <ProfileModals followers={user.followers} following={user.following} collections={user.collections} />
 
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 mt-4 md:mt-12 w-full">
         <aside className="w-full md:w-72 flex-shrink-0 space-y-6">
           <div className="dark:bg-zinc-900/50 bg-white border dark:border-zinc-800 border-gray-200 shadow-sm rounded-2xl p-6 flex flex-col items-center text-center relative overflow-hidden transition-colors w-full">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-3xl"></div>
-             
-             <Link prefetch={false} href="?tab=settings" className="relative group cursor-pointer mt-2 block">
-               <div className="w-28 h-28 rounded-full dark:bg-zinc-800 bg-gray-100 border-4 dark:border-zinc-950 border-white shadow-2xl overflow-hidden flex items-center justify-center relative transition-colors">
-                 {user.image ? (
-                   <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
-                 ) : (
-                   <span className="text-4xl font-black dark:text-white text-zinc-900">{userInitial}</span>
-                 )}
-               </div>
-               <div className="absolute -bottom-2 -right-2 bg-zinc-900 border-2 border-white rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg z-10" title={badge.title}>
-                 {badge.icon}
-               </div>
-             </Link>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-3xl"></div>
+              
+              <Link prefetch={false} href="?tab=settings" className="relative group cursor-pointer mt-2 block">
+                <div className="w-28 h-28 rounded-full dark:bg-zinc-800 bg-gray-100 border-4 dark:border-zinc-950 border-white shadow-2xl overflow-hidden flex items-center justify-center relative transition-colors">
+                  {user.image ? (
+                    <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-4xl font-black dark:text-white text-zinc-900">{userInitial}</span>
+                  )}
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-zinc-900 border-2 border-white rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg z-10" title={badge.title}>
+                  {badge.icon}
+                </div>
+              </Link>
 
-             <h2 className="mt-5 text-xl font-black dark:text-white text-zinc-900 tracking-tight transition-colors break-words max-w-full">
-               {user.name}
-             </h2>
-             <div className="flex flex-col items-center gap-1 mb-4 mt-1">
-               <p className={`text-sm font-bold ${badge.color} transition-colors`}>{badge.title}</p>
-               <div className="flex items-center gap-2">
-                 <span className="text-xs dark:text-zinc-500 text-zinc-500 font-medium">Level {user.level}</span>
-                 <div className="w-16 h-1.5 dark:bg-zinc-800 bg-gray-200 rounded-full overflow-hidden">
-                   <div className="h-full bg-red-600" style={{ width: `${(user.xp % 100)}%` }}></div>
-                 </div>
-               </div>
-             </div>
+              <h2 className="mt-5 text-xl font-black dark:text-white text-zinc-900 tracking-tight transition-colors break-words max-w-full">
+                {user.name}
+              </h2>
+              <div className="flex flex-col items-center gap-1 mb-4 mt-1">
+                <p className={`text-sm font-bold ${badge.color} transition-colors`}>{badge.title}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs dark:text-zinc-500 text-zinc-500 font-medium">Level {user.level}</span>
+                  <div className="w-16 h-1.5 dark:bg-zinc-800 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-600" style={{ width: `${(user.xp % 100)}%` }}></div>
+                  </div>
+                </div>
+              </div>
 
-             <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
-               <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=followers`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
-                 <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.followers.length}</span>
-                 <span className="text-[10px] uppercase tracking-wider font-semibold">Followers</span>
-               </Link>
-               <div className="w-px h-8 dark:bg-zinc-800 bg-gray-200 transition-colors"></div>
-               <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=following`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
-                 <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.following.length}</span>
-                 <span className="text-[10px] uppercase tracking-wider font-semibold">Following</span>
-               </Link>
-             </div>
+              <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
+                <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=followers`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.followers.length}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold">Followers</span>
+                </Link>
+                <div className="w-px h-8 dark:bg-zinc-800 bg-gray-200 transition-colors"></div>
+                <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=following`} scroll={false} className="flex flex-col items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 p-2 rounded-xl transition-colors">
+                  <span className="font-black dark:text-white text-zinc-900 text-lg group-hover:text-red-500 transition-colors">{user.following.length}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold">Following</span>
+                </Link>
+              </div>
           </div>
 
           <nav className="flex flex-col gap-2 w-full">
@@ -359,17 +317,35 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                   {currentCollections.map((collection) => (
                     <div key={collection.id} className="dark:bg-zinc-950 bg-gray-50 border dark:border-zinc-800 border-gray-200 rounded-xl p-5 shadow-sm transition-colors">
                       <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-bold text-lg dark:text-white text-zinc-900 truncate">{collection.name}</h3>
+                        <div className="w-full">
+                          {/* COLLECTION NAME TRIGGERS MODAL */}
+                          <Link prefetch={false} href={`?tab=${currentTab}&page=${currentPage}&modal=collection&collectionId=${collection.id}`} scroll={false} className="font-bold text-lg dark:text-white text-zinc-900 hover:text-purple-500 transition-colors truncate block">
+                            {collection.name}
+                          </Link>
                           <p className="text-xs font-semibold dark:text-zinc-500 text-zinc-500 uppercase tracking-wider">{collection.movies.length} Movies</p>
                         </div>
                       </div>
                       <div className="grid grid-cols-4 gap-2">
                         {[0, 1, 2, 3].map(i => {
                           const movie = collection.movies[i];
+                          const isLastCell = i === 3;
+                          const extraMoviesCount = collection.movies.length - 4;
+                          
+                          // The 4th poster triggers the modal if there are extra movies
+                          const targetHref = (isLastCell && extraMoviesCount > 0) 
+                            ? `?tab=${currentTab}&page=${currentPage}&modal=collection&collectionId=${collection.id}` 
+                            : `/movie/${movie?.id}`;
+
                           return movie ? (
-                            <Link prefetch={false} href={`/movie/${movie.id}`} key={i} className="aspect-[2/3] relative rounded-md overflow-hidden bg-zinc-800 border dark:border-zinc-800 border-gray-300 hover:border-purple-500 transition-all">
+                            <Link prefetch={false} href={targetHref} scroll={false} key={i} className="aspect-[2/3] relative rounded-md overflow-hidden bg-zinc-800 border dark:border-zinc-800 border-gray-300 hover:border-purple-500 transition-all group">
                               {movie.posterPath && <Image src={`https://image.tmdb.org/t/p/w200${movie.posterPath}`} alt={movie.title} fill className="object-cover" />}
+                              
+                              {/* The +X Overlay for hidden movies */}
+                              {isLastCell && extraMoviesCount > 0 && (
+                                <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-[2px]">
+                                  <span className="text-white font-black text-sm sm:text-base">+{extraMoviesCount}</span>
+                                </div>
+                              )}
                             </Link>
                           ) : (
                             <div key={i} className="aspect-[2/3] rounded-md dark:bg-zinc-900/50 bg-gray-200 border border-dashed dark:border-zinc-800/50 border-gray-300 transition-colors"></div>
