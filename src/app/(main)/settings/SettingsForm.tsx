@@ -14,7 +14,7 @@ export default function SettingsForm({ initialName, initialBio }: { initialName:
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("/api/user/settings", {
+      const res = await fetch("/api/users/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, bio }),
