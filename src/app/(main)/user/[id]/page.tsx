@@ -177,6 +177,11 @@ export default async function PublicProfilePage({ params, searchParams }: { para
                 <div className="flex items-center gap-2">
                   <span className="text-xs dark:text-zinc-500 text-zinc-500 font-medium">Level {user.level}</span>
                 </div>
+                {user.bio && (
+                  <p className="mt-3 text-sm dark:text-zinc-400 text-zinc-600 text-center px-2 leading-relaxed">
+                    {user.bio}
+                  </p>
+                )}
               </div>
 
              <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">

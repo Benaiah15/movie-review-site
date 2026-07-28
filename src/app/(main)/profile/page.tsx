@@ -127,6 +127,11 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     <div className="h-full bg-red-600" style={{ width: `${(user.xp % 100)}%` }}></div>
                   </div>
                 </div>
+                {user.bio && (
+                  <p className="mt-3 text-sm dark:text-zinc-400 text-zinc-600 text-center px-2 leading-relaxed">
+                    {user.bio}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-center gap-6 text-sm dark:text-zinc-400 text-zinc-500 border-t dark:border-zinc-800/50 border-gray-100 pt-4 w-full transition-colors">
