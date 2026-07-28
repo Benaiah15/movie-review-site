@@ -19,10 +19,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// PWA Metadata integration
+// PWA Metadata and SEO integration
 export const metadata: Metadata = {
-  title: "MovieSpace",
+  title: {
+    default: "MovieSpace",
+    template: "%s | MovieSpace",
+  },
   description: "Your Cinematic Universe",
+  applicationName: "MovieSpace",
+  appleWebApp: {
+    title: "MovieSpace",
+    statusBarStyle: "default",
+  },
+  openGraph: {
+    siteName: "MovieSpace",
+    title: "MovieSpace",
+    description: "Your Cinematic Universe",
+    type: "website",
+  },
   manifest: "/manifest.json",
   verification: {
     google: "yft5cshDJWPaw8mfaVg9tzC9tFbXAYVaQn9hUGh6JqI",
@@ -42,7 +56,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* PWA Service Worker Registration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -72,10 +85,8 @@ export default function RootLayout({
           </SessionGuardian>
         </AuthProvider>
         
-        {/* Vercel Analytics */}
         <Analytics />
         
-        {/* 2. Safely pulling the GA ID from your environment variables! */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
@@ -84,5 +95,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
