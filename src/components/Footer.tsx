@@ -38,6 +38,7 @@ export default function Footer() {
           <Link prefetch={false} href="/help" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Help Center</Link>
           <Link prefetch={false} href="/privacy" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Privacy Policy</Link>
           <Link prefetch={false} href="/terms" className="dark:hover:text-zinc-300 hover:text-zinc-900 transition-colors">Terms of Service</Link>
+          <Link href="/sitemap" className="text-sm text-gray-500 hover:text-white transition-colors">Sitemap</Link>
         </div>
         
         <p className="text-center md:text-left">© {new Date().getFullYear()} MovieSpace. All rights reserved.</p>
