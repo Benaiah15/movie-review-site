@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Clock, Star, MessageSquare, Users, Film, Heart, Activity, Sparkles, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const revalidate = 3600;
-export const dynamic = "force-dynamic";
 
 const ITEMS_PER_PAGE = 10; // Change this number to show more/less items per page
 

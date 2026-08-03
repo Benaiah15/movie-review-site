@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    // THE FIX: Profanity Filter Check
+    // Profanity Filter Check
     if (containsProfanity(content)) {
       return new NextResponse("Your review contains inappropriate language. Please keep the community respectful.", { status: 400 });
     }
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     // Update XP and Level
     const currentUser = await db.user.findUnique({
       where: { id: userId },
-      select: { xp: true, level: true }
+      select: { xp: true, level: true, name: true } // Fetched name for the notification
     });
 
     if (currentUser) {
@@ -47,6 +47,24 @@ export async function POST(req: Request) {
           level: calculatedLevel > currentUser.level ? calculatedLevel : currentUser.level
         }
       });
+    }
+
+    // --- NEW: TRIGGER ADMIN NOTIFICATION ---
+    const adminEmail = process.env.MASTER_ADMIN_EMAIL;
+    const admin = adminEmail 
+      ? await db.user.findUnique({ where: { email: adminEmail } })
+      : await db.user.findFirst({ where: { level: 100 } });
+
+    if (admin && admin.id !== userId) {
+      await db.notification.create({
+        data: {
+          userId: admin.id,
+          actorId: userId,
+          message: `published a new ${rating}★ review!`,
+          type: "REVIEW",
+          link: `/movie/${movieId}`
+        }
+      }).catch(() => null);
     }
 
     return NextResponse.json(review);

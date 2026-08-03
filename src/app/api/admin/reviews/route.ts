@@ -7,7 +7,7 @@ import db from "@/lib/db";
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   
-  // THE FIX: Strict Role-Based Access Control (RBAC) check
+  // Strict Role-Based Access Control (RBAC) check
   if (!session || (session.user as any).role !== "ADMIN") {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -15,11 +15,12 @@ export async function GET(req: Request) {
   const reviews = await db.review.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      user: { select: { name: true, email: true, image: true } },
-      movie: { select: { title: true } },
+      // ADDED id: true so frontend links work correctly
+      user: { select: { id: true, name: true, email: true, image: true } },
+      movie: { select: { id: true, title: true } },
       // Fetch the comments attached to this review
       comments: {
-        include: { user: { select: { name: true, email: true } } },
+        include: { user: { select: { id: true, name: true, email: true } } },
         orderBy: { createdAt: 'asc' }
       }
     }
@@ -32,7 +33,7 @@ export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     
-    // THE FIX: Strict Role-Based Access Control (RBAC) check
+    // Strict Role-Based Access Control (RBAC) check
     if (!session || (session.user as any).role !== "ADMIN") {
       return new NextResponse("Unauthorized", { status: 401 });
     }
