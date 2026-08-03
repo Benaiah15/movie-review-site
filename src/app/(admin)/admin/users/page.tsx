@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Trash2, UserCircle, Loader2, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -63,17 +64,18 @@ export default function ManageUsersPage() {
         {users.map(user => (
           <div key={user.id} className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm flex flex-col gap-4 transition-colors">
             <div className="flex items-start justify-between gap-3 w-full overflow-hidden">
-              <div className="flex items-center gap-3 min-w-0">
+              {/* Wrapped Profile with Link */}
+              <Link href={`/user/${user.id}`} className="flex items-center gap-3 min-w-0 group hover:opacity-80 transition-opacity">
                 {user.image ? (
                   <img src={user.image} className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-zinc-800 flex-shrink-0" alt="" />
                 ) : (
                   <UserCircle size={48} className="text-slate-300 dark:text-zinc-700 flex-shrink-0" />
                 )}
                 <div className="min-w-0 flex flex-col">
-                  <span className="font-bold dark:text-white text-slate-900 truncate">{user.name || "Unknown Identity"}</span>
+                  <span className="font-bold dark:text-white text-slate-900 truncate group-hover:text-red-600 transition-colors">{user.name || "Unknown Identity"}</span>
                   <span className="text-xs font-mono dark:text-zinc-400 text-slate-500 truncate">{user.email}</span>
                 </div>
-              </div>
+              </Link>
               
               <button 
                 onClick={() => handleDelete(user.id, user.email)}
@@ -115,14 +117,15 @@ export default function ManageUsersPage() {
             {users.map(user => (
               <tr key={`desktop-${user.id}`} className="hover:bg-slate-50 dark:hover:bg-zinc-900/30 transition-colors group">
                 <td className="p-4 pl-6">
-                  <div className="flex items-center gap-3">
+                  {/* Wrapped Profile with Link */}
+                  <Link href={`/user/${user.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity w-fit">
                     {user.image ? (
                       <img src={user.image} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-zinc-800" alt="" />
                     ) : (
                       <UserCircle size={40} className="text-slate-300 dark:text-zinc-700" />
                     )}
-                    <span className="font-bold dark:text-white text-slate-900">{user.name || "Unknown Identity"}</span>
-                  </div>
+                    <span className="font-bold dark:text-white text-slate-900 group-hover:text-red-600 transition-colors">{user.name || "Unknown Identity"}</span>
+                  </Link>
                 </td>
                 <td className="p-4 text-sm font-mono dark:text-zinc-400 text-slate-600">{user.email}</td>
                 <td className="p-4">

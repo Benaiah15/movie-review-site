@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     const existingUser = await db.user.findUnique({ where: { email } });
 
     if (existingUser) {
-      // If they exist but have no password, they logged in with Google originally
       if (!existingUser.hashedPassword) {
         return new NextResponse("Email linked to a Google Account. Please sign in with Google.", { status: 400 });
       }
@@ -23,20 +22,32 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user with starting XP (Level 1)
+    // 1. Create user with starting XP
     const user = await db.user.create({
       data: { name, email, hashedPassword, xp: 50, level: 1 }
     });
 
-    // Auto-Follow the Admin immediately upon registration
+    // 2. Find Master Admin (fallback to level 100 if env var is missing)
     const adminEmail = process.env.MASTER_ADMIN_EMAIL;
-    if (adminEmail) {
-      const admin = await db.user.findUnique({ where: { email: adminEmail } });
-      if (admin) {
-        await db.follow.create({
-          data: { followerId: user.id, followingId: admin.id }
-        }).catch(() => null); // Fail silently if it somehow glitches
-      }
+    const admin = adminEmail 
+      ? await db.user.findUnique({ where: { email: adminEmail } })
+      : await db.user.findFirst({ where: { level: 100 } });
+
+    if (admin) {
+      // Create Auto-Follow relationship
+      await db.follow.create({
+        data: { followerId: user.id, followingId: admin.id }
+      }).catch(() => null);
+
+        await db.notification.create({
+              data: {
+                userId: admin.id, // Notification belongs to Admin
+                actorId: user.id, // The new user who just registered
+                message: `${user.name || "A new user"} started following you.`,
+                type: "FOLLOW",
+                link: `/profile/${user.name || user.id}` // A link back to the new user's profile
+              }
+            }).catch(() => null);
     }
 
     return NextResponse.json(user);
