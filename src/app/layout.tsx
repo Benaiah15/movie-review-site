@@ -67,6 +67,19 @@ export default function RootLayout({
             `,
           }}
         />
+        
+        {/* NEW: Google Structured Data to force "MovieSpace" branding in Search */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "MovieSpace",
+              url: "https://themoviespace.vercel.app/"
+            })
+          }}
+        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden flex flex-col min-h-screen`}>
         <AuthProvider>
