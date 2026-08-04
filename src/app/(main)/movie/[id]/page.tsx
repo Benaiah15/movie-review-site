@@ -7,12 +7,9 @@ import ReviewSection from "@/components/ReviewSection";
 import WatchlistButton from "@/components/WatchlistButton";
 import TopFourButton from "@/components/TopFourButton";
 import CollectionModal from "@/components/CollectionModal";
-import WhereToWatch from "@/components/WhereToWatch"; // <-- Imported new component
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import WhereToWatch from "@/components/WhereToWatch"; 
 import type { Metadata } from "next";
 
-// This tells Next.js to fetch the movie data on the server BEFORE sending it to Google
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const resolvedParams = await params;
   const rawId = resolvedParams.id;
@@ -23,7 +20,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   let imageUrl = "";
 
   if (isTmdbId) {
-    // Fetch from TMDB if it's a number
     try {
       const res = await fetch(`https://api.themoviedb.org/3/movie/${rawId}?api_key=${process.env.TMDB_API_KEY}`);
       const movie = await res.json();
@@ -34,7 +30,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       }
     } catch(e) {}
   } else {
-    // Fetch from YOUR database if it's a CUID
     try {
       const dbMovie = await db.movie.findUnique({ where: { id: rawId } });
       if (dbMovie) {
@@ -45,7 +40,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     } catch(e) {}
   }
 
-  // This creates the perfect, clickable Google search result
   return {
     title: `${title} - Reviews & Ratings | MovieSpace`,
     description: description,
@@ -60,13 +54,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+// This will now ACTUALLY work because we removed getServerSession!
 export const revalidate = 3600;
 
 async function getTMDBDetails(tmdbId: number | null) {
   if (!tmdbId || isNaN(tmdbId)) return null;
   try {
     const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=credits,videos,similar,watch/providers`;
-    const res = await fetch(url);
+    // Added Next.js cache aggressively to the fetch request
+    const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
@@ -74,11 +70,11 @@ async function getTMDBDetails(tmdbId: number | null) {
   }
 }
 
-// <-- Added TMDB Watch Providers Fetch Function -->
 async function getWatchProviders(movieId: string | number) {
   try {
     const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${process.env.TMDB_API_KEY}`
+      `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${process.env.TMDB_API_KEY}`,
+      { next: { revalidate: 3600 } } // Cached to save CPU
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -90,8 +86,6 @@ async function getWatchProviders(movieId: string | number) {
 
 export default async function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const session = await getServerSession(authOptions);
-  
   const rawId = resolvedParams.id;
   const isTmdbId = /^\d+$/.test(rawId); 
 
@@ -123,54 +117,21 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
       );
     } 
     
-    // THE FIX: BOT BLOCKER
-    // Only write to the database if an actual user is logged in!
-    if (session?.user) {
-      try {
-        movie = await db.movie.create({
-          data: {
-            tmdbId: tmdbData.id,
-            title: tmdbData.title || tmdbData.original_title || "Unknown Title",
-            description: tmdbData.overview || "No synopsis available.",
-            releaseDate: tmdbData.release_date || null,
-            posterPath: tmdbData.poster_path || null,
-            backdropPath: tmdbData.backdrop_path || null,
-            rating: tmdbData.vote_average || 0,
-            isPublished: true
-          },
-          include: { 
-            favoritedBy: { select: { id: true } }, 
-            topFourUsers: { select: { id: true } }, 
-            reviews: { 
-              include: { 
-                user: { select: { id: true, name: true, image: true, level: true } }, 
-                likes: true, 
-                comments: { include: { user: { select: { id: true, name: true, image: true, level: true } } } } 
-              } 
-            } 
-          }
-        });
-      } catch (err) {
-        // Silent catch
-      }
-    } 
-    
-    // If there is no session (it's a bot or guest), just mock the data. Database stays at 0 bytes!
-    if (!movie) {
-      movie = {
-        id: `temp_${tmdbData.id}`, 
-        tmdbId: tmdbData.id, 
-        title: tmdbData.title || tmdbData.original_title || "Unknown Title", 
-        description: tmdbData.overview || "No synopsis.",
-        releaseDate: tmdbData.release_date || null, 
-        posterPath: tmdbData.poster_path || null, 
-        backdropPath: tmdbData.backdrop_path || null,
-        rating: tmdbData.vote_average || 0, 
-        favoritedBy: [], 
-        topFourUsers: [], 
-        reviews: []
-      } as any;
-    }
+    // EMERGENCY FIX: Removed db.movie.create from the GET request to stop database locking and CPU burn.
+    // The movie will be created dynamically via API routes when a user ACTUALLY tries to review or save it.
+    movie = {
+      id: `temp_${tmdbData.id}`, 
+      tmdbId: tmdbData.id, 
+      title: tmdbData.title || tmdbData.original_title || "Unknown Title", 
+      description: tmdbData.overview || "No synopsis.",
+      releaseDate: tmdbData.release_date || null, 
+      posterPath: tmdbData.poster_path || null, 
+      backdropPath: tmdbData.backdrop_path || null,
+      rating: tmdbData.vote_average || 0, 
+      favoritedBy: [], 
+      topFourUsers: [], 
+      reviews: []
+    } as any;
   }
 
   if (!movie) {
@@ -183,7 +144,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   }
 
   const tmdbData = await getTMDBDetails(movie.tmdbId || parseInt(rawId));
-  const providers = await getWatchProviders(movie.tmdbId || rawId); // <-- Fetching the providers
+  const providers = await getWatchProviders(movie.tmdbId || rawId); 
   
   const director = tmdbData?.credits?.crew?.find((p: any) => p.job === "Director")?.name;
   const writers = tmdbData?.credits?.crew?.filter((p: any) => p.department === "Writing").slice(0, 2).map((w: any) => w.name).join(", ");
@@ -193,8 +154,10 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const streamingProviders = tmdbData?.["watch/providers"]?.results?.US?.flatrate?.slice(0, 4) || [];
   const similarMovies = tmdbData?.similar?.results?.slice(0, 10) || [];
   
-  const isSaved = session?.user?.id ? movie.favoritedBy.some((u: any) => u.id === session.user.id) : false;
-  const isPinned = session?.user?.id && movie.topFourUsers ? movie.topFourUsers.some((u: any) => u.id === session.user.id) : false;
+  // EMERGENCY FIX: Defaulting to false on the server. 
+  // Client Components will handle their own active states to keep this page entirely static.
+  const isSaved = false;
+  const isPinned = false;
 
   const formatMoney = (amount: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 
@@ -260,9 +223,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 w-full mb-8">
                   <div className="w-full sm:w-auto flex justify-center"><WatchlistButton movieId={movie.id} initialIsSaved={isSaved} /></div>
                   <div className="w-full sm:w-auto flex justify-center"><CollectionModal movieId={movie.id} /></div>
-                  {session && (
-                    <div className="w-full sm:w-auto flex justify-center"><TopFourButton movieId={movie.id} initialIsPinned={isPinned} /></div>
-                  )}
+                  <div className="w-full sm:w-auto flex justify-center"><TopFourButton movieId={movie.id} initialIsPinned={isPinned} /></div>
                 </div>
 
                 {tmdbData?.genres && (
@@ -311,7 +272,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   </div>
                 </div>
 
-                {/* <-- ADDED MONETIZATION COMPONENT HERE --> */}
                 <div className="w-full max-w-3xl mx-auto md:mx-0">
                   <WhereToWatch movieTitle={movie.title} providers={providers} />
                 </div>
