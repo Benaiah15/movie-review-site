@@ -4,16 +4,10 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Download, X, Share } from "lucide-react";
 
-// =======================================================================
-// 1. THE STRICT REMOUNT COMPONENT
-// This guarantees the animation plays by forcing a rebuild on route change
-// =======================================================================
 function PageTransition({ children }: { children: React.ReactNode }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // A tiny 20ms delay guarantees the browser paints the invisible state first, 
-    // forcing the CSS transition to execute when it turns visible.
     const timer = setTimeout(() => setShow(true), 20);
     return () => clearTimeout(timer);
   }, []);
@@ -29,9 +23,6 @@ function PageTransition({ children }: { children: React.ReactNode }) {
   );
 }
 
-// =======================================================================
-// 2. THE MAIN ENHANCER
-// =======================================================================
 export default function AppEnhancer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -80,14 +71,10 @@ export default function AppEnhancer({ children }: { children: React.ReactNode })
 
   return (
     <>
-      {/* By passing key={pathname} to our custom PageTransition, 
-        Next.js is FORCED to run the animation on every click!
-      */}
       <PageTransition key={pathname}>
         {children}
       </PageTransition>
 
-      {/* THE INSTALL BANNER */}
       {!isStandalone && (
         <div
           className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-[400px] z-[99999] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-gray-200/50 dark:border-zinc-800/50 p-4 rounded-2xl shadow-2xl transform transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center gap-4 ${
