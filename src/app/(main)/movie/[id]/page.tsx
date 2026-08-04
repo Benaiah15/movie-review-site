@@ -55,6 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 // This will now ACTUALLY work because we removed getServerSession!
+export const dynamic = "force-static";
 export const revalidate = 3600;
 
 async function getTMDBDetails(tmdbId: number | null) {
