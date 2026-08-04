@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pin } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react"; // Added missing import
 
 export default function TopFourButton({ movieId, initialIsPinned }: { movieId: string, initialIsPinned: boolean }) {
+  const { data: session, status } = useSession(); // Tap into the session
   const [isPinned, setIsPinned] = useState(initialIsPinned);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // NEW: Fetch the actual pinned state in the background if the user is logged in
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch(`/api/movies/${movieId}/top-four/check`)
+        .then((res) => res.json())
+        .then((data) => setIsPinned(data.pinned))
+        .catch(() => {});
+    }
+  }, [status, movieId]);
 
   const togglePin = async () => {
     if (isLoading) return;

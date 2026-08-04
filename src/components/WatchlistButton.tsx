@@ -1,15 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bookmark, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export default function WatchlistButton({ movieId, initialIsSaved }: { movieId: string, initialIsSaved: boolean }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [isLoading, setIsLoading] = useState(false);
+
+  // NEW: Fetch the actual saved state in the background if the user is logged in
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch(`/api/watchlist/check?movieId=${movieId}`)
+        .then((res) => res.json())
+        .then((data) => setIsSaved(data.isSaved))
+        .catch(() => {});
+    }
+  }, [status, movieId]);
 
   const toggleWatchlist = async () => {
     if (!session) {
