@@ -99,6 +99,45 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  events: {
+    // This fires the exact moment a new user is inserted into the database
+    async createUser({ user }) {
+      try {
+        const masterEmail = process.env.MASTER_ADMIN_EMAIL;
+        if (!masterEmail) return;
+
+        // Find the admin account
+        const admin = await db.user.findUnique({
+          where: { email: masterEmail },
+        });
+
+        // If the admin exists, and the new user isn't the admin themselves, create the follow
+        if (admin && user.id !== admin.id) {
+          
+          // 1. Create the Follow relationship based on your Follow model
+          await db.follow.create({
+            data: {
+              followerId: user.id,
+              followingId: admin.id,
+            },
+          });
+          
+          // 2. Create the Notification based on your Notification model
+          await db.notification.create({
+            data: {
+              userId: admin.id,
+              actorId: user.id,
+              type: "FOLLOW",
+              message: "joined MovieSpace and started following you.",
+              link: `/user/${user.id}`, // Adjusted to match the route fix we made in the Navbar
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Failed to execute auto-follow logic on signup:", error);
+      }
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

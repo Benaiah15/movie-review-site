@@ -31,29 +31,25 @@ export default function Navbar() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
- // Fetch Notifications
-useEffect(() => {
+  // Fetch Notifications & Dummy Follows (CPU SAFE VERSION)
+  useEffect(() => {
     setMounted(true);
     if (user) {
-      const fetchNotifs = () => {
-        fetch("/api/notifications")
-          .then(res => res.json())
-          .then(data => {
-            if(Array.isArray(data)) setNotifications(data);
-          })
-          .catch(() => null);
-          
-        // 3% chance a dummy user follows the active user
-        if (Math.random() < 0.03) {
-          fetch("/api/organic-follow", { method: "POST" }).catch(() => null);
-        }
-      };
-      
-      fetchNotifs(); 
-      const interval = setInterval(fetchNotifs, 300000); 
-      return () => clearInterval(interval); 
+      // 1. Fetch notifications
+      fetch("/api/notifications")
+        .then(res => res.json())
+        .then(data => {
+          if(Array.isArray(data)) setNotifications(data);
+        })
+        .catch(() => null);
+        
+      // 2. Restored: 3% chance a dummy user follows the active user!
+      // This now rolls the dice ONLY when the user actively navigates to a new page.
+      if (Math.random() < 0.03) {
+        fetch("/api/organic-follow", { method: "POST" }).catch(() => null);
+      }
     }
-  }, [user]);
+  }, [user, pathname]);
 
   // Click Outside Logic (Closes notifications smoothly)
   useEffect(() => {
@@ -187,7 +183,6 @@ useEffect(() => {
                       {notifications.map((notif) => (
                         <Link 
                           key={notif.id} 
-                          // FIX: Intercept the string and replace /profile/ with /user/
                           href={notif.link?.replace('/profile/', '/user/') || "#"} 
                           onClick={closeAllMenus}
                           className={`flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors border-b dark:border-zinc-800/50 border-gray-100 last:border-0 ${!notif.isRead ? 'dark:bg-zinc-900/30 bg-red-50/30' : ''}`}
@@ -306,7 +301,7 @@ useEffect(() => {
               )}
               
               <div className="border-t dark:border-zinc-800 border-gray-200 mt-2 pt-2 transition-colors">
-                {/* FIX: Mobile "My Profile" link corrected to /user */}
+                {/* FIX: Mobile "My Profile" link corrected to /profile */}
                 <Link prefetch={false} href="/profile" rel="nofollow" onClick={closeAllMenus} className="flex items-center gap-3 dark:text-zinc-400 text-zinc-600 dark:hover:text-white hover:text-zinc-900 py-3 font-medium transition-colors">
                   {user.image ? (
                      <img src={user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover border dark:border-zinc-800 border-gray-200" />
