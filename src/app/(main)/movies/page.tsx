@@ -3,8 +3,6 @@ import Image from "next/image";
 import Pagination from "@/components/Pagination";
 import { Star, PlayCircle, Search, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
-export const revalidate = 3600; // Updates the cache every 3600 seconds
-
 // Hardcoded TMDB genre map for fast filtering
 const GENRES = [
   { id: 28, name: "Action" },
@@ -40,9 +38,9 @@ async function searchTMDB(query: string, page: number, genre?: string, year?: st
       endpoint = `/movie/popular?page=${page}`;
     }
     
-    // THE FIX: Added cache revalidation to protect your CPU from excessive API waiting!
+    // THE FIX: Caching completely disabled to prevent Vercel ISR Write limit exhaustion!
     const res = await fetch(`https://api.themoviedb.org/3${endpoint}&api_key=${process.env.TMDB_API_KEY}`, {
-      next: { revalidate: 3600 }
+      cache: "no-store"
     });
     
     if (!res.ok) return { results: [], total_pages: 1 };
