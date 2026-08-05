@@ -8,7 +8,8 @@ export const revalidate = 3600; // Updates the cache every 3600 seconds
 async function getActorDetails(personId: string) {
   try {
     const res = await fetch(
-      `https://api.themoviedb.org/3/person/${personId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=movie_credits`
+      `https://api.themoviedb.org/3/person/${personId}?api_key=${process.env.TMDB_API_KEY}&append_to_response=movie_credits`,
+      { next: { revalidate: 3600 } } // <-- THE FIX: Added Data Caching here!
     );
     if (!res.ok) return null;
     return res.json();

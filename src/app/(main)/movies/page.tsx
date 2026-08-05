@@ -40,7 +40,11 @@ async function searchTMDB(query: string, page: number, genre?: string, year?: st
       endpoint = `/movie/popular?page=${page}`;
     }
     
-    const res = await fetch(`https://api.themoviedb.org/3${endpoint}&api_key=${process.env.TMDB_API_KEY}`);
+    // THE FIX: Added cache revalidation to protect your CPU from excessive API waiting!
+    const res = await fetch(`https://api.themoviedb.org/3${endpoint}&api_key=${process.env.TMDB_API_KEY}`, {
+      next: { revalidate: 3600 }
+    });
+    
     if (!res.ok) return { results: [], total_pages: 1 };
     return res.json();
   } catch (error) {
